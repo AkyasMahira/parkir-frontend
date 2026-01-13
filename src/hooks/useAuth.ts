@@ -30,7 +30,7 @@ export const useAuth = () => {
         const dashboardRoutes = {
           admin: "/admin/dashboard",
           petugas: "/petugas/transaksi",
-          owner: "/owner/laporan",
+          owner: "/owner/dashboard",
         };
 
         router.push(dashboardRoutes[user.role] || "/");
