@@ -21,7 +21,10 @@ export default function AdminDashboard() {
         ]);
 
         const totalDuit = resParkir.data.data.reduce(
-          (sum: number, item: any) => sum + (item.biaya_total || 0),
+          (sum: number, item: any) => {
+            const biaya = Number(item.biaya_total) || 0;
+            return sum + biaya;
+          },
           0
         );
 
