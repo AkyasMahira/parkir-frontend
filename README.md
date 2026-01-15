@@ -1,36 +1,121 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Parkir Frontend
 
-## Getting Started
+Aplikasi antarmuka pengguna (frontend) untuk sistem manajemen parkir yang modern dan responsif. Dibangun menggunakan teknologi web terbaru seperti **Next.js 16**, **React 19**, dan **Tailwind CSS v4** untuk memberikan pengalaman pengguna yang cepat dan mulus bagi Admin, Petugas, maupun Pemilik (Owner).
 
-First, run the development server:
+Project ini berkomunikasi dengan [Parkir Backend API](https://github.com/username/parkir-backend) untuk pengelolaan data.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🚀 Fitur Utama
+
+Berdasarkan struktur halaman (`src/app`), aplikasi ini memiliki fitur berbasis peran (Role-Based):
+
+* **Autentikasi**: Halaman Login terintegrasi dengan sistem token (Bearer Auth).
+* **Dashboard Admin**:
+    * Manajemen User (CRUD Pengguna).
+    * Manajemen Tarif Parkir.
+    * Manajemen Area/Lokasi Parkir.
+    * Melihat Log Aktivitas Sistem.
+* **Dashboard Petugas**:
+    * Pencatatan Transaksi (Parkir Masuk & Keluar).
+    * Melihat Riwayat Transaksi.
+* **Dashboard Owner**:
+    * Monitoring ringkasan operasional.
+
+## 🛠 Teknologi yang Digunakan
+
+Project ini dibangun dengan stack teknologi modern:
+
+* **Framework**: [Next.js 16.1](https://nextjs.org/) (App Router)
+* **Library UI**: [React 19](https://react.dev/)
+* **Bahasa**: [TypeScript](https://www.typescriptlang.org/)
+* **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+* **HTTP Client**: [Axios](https://axios-http.com/)
+* **Icons**: [Lucide React](https://lucide.dev/)
+* **Linting**: ESLint
+
+## 📋 Prasyarat Instalasi
+
+Pastikan Anda telah menginstal:
+
+* [Node.js](https://nodejs.org/) (Versi LTS disarankan, min v20 untuk Next.js 16).
+* [npm](https://www.npmjs.com/) atau package manager lain (yarn/pnpm/bun).
+
+## ⚙️ Cara Instalasi & Menjalankan
+
+Ikuti langkah berikut untuk menjalankan aplikasi di komputer lokal:
+
+1.  **Clone Repository**
+    ```bash
+    git clone [https://github.com/username/parkir-frontend.git](https://github.com/username/parkir-frontend.git)
+    cd parkir-frontend
+    ```
+
+2.  **Install Dependencies**
+    ```bash
+    npm install
+    ```
+
+3.  **Konfigurasi Koneksi API**
+    Secara default, konfigurasi API mengarah ke `http://parkir-backend.test/api` (lihat `src/lib/axios.ts`).
+    
+    Disarankan untuk membuat file `.env.local` untuk konfigurasi yang fleksibel:
+    ```bash
+    NEXT_PUBLIC_API_URL=http://localhost:8000/api
+    ```
+    *(Catatan: Anda mungkin perlu menyesuaikan `src/lib/axios.ts` agar membaca dari `process.env.NEXT_PUBLIC_API_URL`)*.
+
+4.  **Jalankan Server Development**
+    ```bash
+    npm run dev
+    ```
+
+5.  **Buka Aplikasi**
+    Buka browser dan kunjungi [http://localhost:3000](http://localhost:3000).
+
+## 📂 Susunan Project
+
+Struktur direktori utama menggunakan **App Router** Next.js:
+
+```text
+parkir-frontend/
+├── src/
+│   ├── app/
+│   │   ├── admin/          # Halaman khusus Admin (Users, Tarif, Logs)
+│   │   ├── owner/          # Halaman khusus Owner
+│   │   ├── petugas/        # Halaman Transaksi & Riwayat Petugas
+│   │   ├── login/          # Halaman Login
+│   │   └── page.tsx        # Landing Page
+│   ├── components/
+│   │   ├── layouts/        # Layout Dashboard, dll
+│   │   └── ui/             # Komponen Reusable (Button, Input, Navbar)
+│   ├── hooks/              # Custom Hooks (useAuth)
+│   ├── lib/
+│   │   └── axios.ts        # Konfigurasi Axios & Interceptors
+│   └── types/              # Definisi Tipe TypeScript
+├── public/                 # Aset Statis (Gambar/SVG)
+├── package.json            # Dependensi Project
+└── next.config.ts          # Konfigurasi Next.js
+
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🔧 Scripts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Berikut adalah perintah standar yang tersedia di `package.json`:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+* `npm run dev`: Menjalankan server development (Hot Reloading).
+* `npm run build`: Membuild aplikasi untuk produksi.
+* `npm run start`: Menjalankan server produksi setelah build.
+* `npm run lint`: Menjalankan pemeriksaan kode dengan ESLint.
 
-## Learn More
+## 🤝 Kontribusi
 
-To learn more about Next.js, take a look at the following resources:
+Jika Anda ingin berkontribusi:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Fork repository ini.
+2. Buat branch fitur (`git checkout -b fitur-baru`).
+3. Commit perubahan (`git commit -m 'Menambah fitur UI baru'`).
+4. Push ke branch (`git push origin fitur-baru`).
+5. Buat Pull Request.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📄 Lisensi
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Project ini dilisensikan di bawah **MIT License**.
