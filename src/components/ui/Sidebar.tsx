@@ -41,7 +41,7 @@ const ROLE_MENUS: Record<Role, MenuItem[]> = {
     { label: "Riwayat Transaksi", href: "/petugas/riwayat", icon: History },
   ],
   owner: [
-    { label: "Laporan Pendapatan", href: "/owner/laporan", icon: BarChart3 },
+    
   ],
 };
 
