@@ -4,105 +4,69 @@ import React, { forwardRef } from "react";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "outline" | "ghost" | "danger";
-  size?: "sm" | "md" | "lg";
+interface ButtonProps extends Omit<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  "children"
+> {
+  variant?: "primary" | "secondary" | "outline" | "danger";
+  fullWidth?: boolean;
   isLoading?: boolean;
-  leftIcon?: React.ElementType;
-  rightIcon?: React.ElementType; 
-  fullWidth?: boolean; 
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
       className,
-      children,
       variant = "primary",
-      size = "md",
-      isLoading = false,
-      leftIcon: LeftIcon,
-      rightIcon: RightIcon,
-      fullWidth = false,
+      fullWidth,
+      isLoading,
+      leftIcon,
+      rightIcon,
+      children,
       disabled,
-      type = "button", 
       ...props
     },
-    ref
+    ref,
   ) => {
-    // Konfigurasi Style berdasarkan Varian
     const variants = {
       primary:
-        "bg-blue-600 text-white hover:bg-blue-700 shadow-sm shadow-blue-500/30 border border-transparent",
+        "bg-gradient-to-r from-[#71C9CE] to-[#A6E3E9] text-white hover:shadow-lg hover:shadow-[#71C9CE]/40 border-0",
       secondary:
-        "bg-gray-100 text-gray-900 hover:bg-gray-200 border border-transparent",
+        "bg-white text-slate-600 hover:bg-gray-50 border border-gray-100 shadow-sm",
       outline:
-        "bg-transparent text-gray-700 border border-gray-300 hover:bg-gray-50",
-      ghost:
-        "bg-transparent text-gray-700 hover:bg-gray-100 border border-transparent",
-      danger:
-        "bg-red-600 text-white hover:bg-red-700 shadow-sm shadow-red-500/30 border border-transparent",
-    };
-
-    // Konfigurasi Ukuran
-    const sizes = {
-      sm: "text-xs px-3 py-1.5 gap-1.5 h-8",
-      md: "text-sm px-4 py-2.5 gap-2 h-10",
-      lg: "text-base px-6 py-3 gap-2.5 h-12",
+        "bg-transparent border-2 border-[#71C9CE] text-[#71C9CE] hover:bg-[#71C9CE] hover:text-white",
+      danger: "bg-red-50 text-red-600 hover:bg-red-100 border border-red-100",
     };
 
     return (
       <button
         ref={ref}
-        type={type}
-        disabled={disabled || isLoading}
+        disabled={isLoading || disabled}
         className={cn(
-          // Base Styles (Layout & Typography)
-          "inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200",
-          "focus:outline-none focus:ring-2 focus:ring-offset-1",
-          "disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none",
-
-          // Dynamic Styles
+          "inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3 text-sm font-bold transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:pointer-events-none",
           variants[variant],
-          sizes[size],
-          fullWidth ? "w-full" : "w-auto",
-
-          // Focus Ring Colors based on variant
-          variant === "danger" ? "focus:ring-red-500" : "focus:ring-blue-500",
-
-          className
+          fullWidth && "w-full",
+          className,
         )}
         {...props}
       >
-        {/* Loading Spinner */}
-        {isLoading && <Loader2 className="w-4 h-4 animate-spin shrink-0" />}
-
-        {!isLoading && LeftIcon && (
-          <LeftIcon
-            className={cn(
-              "shrink-0",
-              size === "sm" ? "w-3.5 h-3.5" : "w-4 h-4"
+        {isLoading ? (
+          <Loader2 className="w-5 h-5 animate-spin" />
+        ) : (
+          <>
+            {leftIcon && <span className="flex items-center">{leftIcon}</span>}
+            {children}
+            {rightIcon && (
+              <span className="flex items-center">{rightIcon}</span>
             )}
-          />
-        )}
-
-        {/* Button Text */}
-        <span className="truncate">
-          {isLoading ? "Memproses..." : children}
-        </span>
-
-        {/* Right Icon */}
-        {!isLoading && RightIcon && (
-          <RightIcon
-            className={cn(
-              "shrink-0",
-              size === "sm" ? "w-3.5 h-3.5" : "w-4 h-4"
-            )}
-          />
+          </>
         )}
       </button>
     );
-  }
+  },
 );
 
 Button.displayName = "Button";

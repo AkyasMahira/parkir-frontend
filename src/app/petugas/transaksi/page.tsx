@@ -14,24 +14,28 @@ import {
   Loader2,
   CheckCircle2,
   AlertCircle,
-  Clock,
   Zap,
+  Banknote,
 } from "lucide-react";
 import { useReactToPrint } from "react-to-print";
 import { formatRupiah, cn } from "@/lib/utils";
 import api from "@/lib/axios";
 
+// Style Constants
+const GLASS_CARD =
+  "bg-white/70 backdrop-blur-xl border border-white/40 shadow-xl shadow-[#71C9CE]/5 rounded-[2rem] overflow-hidden";
+
 /* =========================
-   BACKGROUND DECORATION (Untuk Efek Glass)
+   BACKGROUND DECORATION (Teal Palette)
    ========================= */
 const BackgroundDecoration = () => (
-  <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+  <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none bg-[#F0FBFC]">
     {/* Gradient Blob Kiri Atas */}
-    <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-400/20 rounded-full blur-[100px] mix-blend-multiply animate-blob" />
+    <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#71C9CE]/20 rounded-full blur-[100px] mix-blend-multiply animate-blob" />
     {/* Gradient Blob Kanan Bawah */}
-    <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-emerald-400/20 rounded-full blur-[100px] mix-blend-multiply animate-blob animation-delay-2000" />
+    <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#A6E3E9]/20 rounded-full blur-[100px] mix-blend-multiply animate-blob animation-delay-2000" />
     {/* Gradient Blob Tengah */}
-    <div className="absolute top-[20%] left-[30%] w-[400px] h-[400px] bg-indigo-400/20 rounded-full blur-[100px] mix-blend-multiply animate-blob animation-delay-4000" />
+    <div className="absolute top-[20%] left-[30%] w-[400px] h-[400px] bg-[#CBF1F5]/30 rounded-full blur-[100px] mix-blend-multiply animate-blob animation-delay-4000" />
   </div>
 );
 
@@ -48,19 +52,19 @@ const StrukParkir = ({ data, componentRef }: any) => {
         className="p-2 font-mono text-[10px] w-[58mm] leading-tight"
       >
         <div className="text-center font-bold mb-2 uppercase">
-          PARKIRAN CANGGIH
+          COACHPRO PARKING
           <br />
-          <span className="font-normal capitalize">Jl. Teknologi No. 1</span>
+          <span className="font-normal capitalize">Smart System Area</span>
         </div>
         <div className="border-b border-dashed border-black my-2" />
         <table className="w-full">
           <tbody>
             <tr>
-              <td className="py-0.5">ID Tiket</td>
+              <td className="py-0.5">Tiket ID</td>
               <td className="font-bold py-0.5 text-right">{data.struk_id}</td>
             </tr>
             <tr>
-              <td className="py-0.5">Plat</td>
+              <td className="py-0.5">Plat No</td>
               <td className="font-bold py-0.5 text-right">{data.plat_nomor}</td>
             </tr>
             <tr>
@@ -89,9 +93,9 @@ const StrukParkir = ({ data, componentRef }: any) => {
           </div>
         )}
         <div className="text-center mt-4 text-[8px] text-gray-600">
-          TERIMA KASIH ATAS KUNJUNGAN ANDA
+          SIMPAN TIKET INI
           <br />
-          HARAP TIKET JANGAN HILANG
+          HILANG TIKET DENDA RP 50.000
         </div>
       </div>
     </div>
@@ -106,29 +110,38 @@ const QrisModal = ({ data, onClose }: { data: any; onClose: () => void }) => {
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 animate-in fade-in duration-200">
-      {/* Backdrop Blur */}
+      {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-md"
+        className="absolute inset-0 bg-[#0F172A]/40 backdrop-blur-md transition-opacity"
         onClick={onClose}
       />
 
       {/* Modal Content */}
-      <div className="relative bg-white/90 backdrop-blur-xl border border-white/50 rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden scale-100 animate-in zoom-in-95 duration-200">
-        <div className="p-4 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 border-b border-white/20 flex justify-between items-center">
-          <h3 className="font-bold text-gray-800 flex items-center gap-2">
-            <QrCode className="w-5 h-5 text-blue-600" />
+      <div className="relative bg-white/90 backdrop-blur-2xl border border-white/50 rounded-[2rem] shadow-2xl max-w-sm w-full overflow-hidden scale-100 animate-in zoom-in-95 duration-200">
+        {/* Header Gradient */}
+        <div className="p-5 bg-gradient-to-r from-[#E3FDFD] to-white border-b border-[#A6E3E9]/50 flex justify-between items-center">
+          <h3 className="font-bold text-slate-800 flex items-center gap-2">
+            <div className="p-1.5 bg-white rounded-lg shadow-sm">
+              <QrCode className="w-5 h-5 text-[#71C9CE]" />
+            </div>
             Scan QRIS
           </h3>
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-black/5 rounded-full transition"
+            className="p-2 hover:bg-white rounded-full transition-colors text-slate-400 hover:text-slate-600"
           >
-            <X className="w-5 h-5 text-gray-500" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-6 flex flex-col items-center text-center">
-          <div className="bg-white p-3 border rounded-2xl shadow-inner mb-4">
+        <div className="p-8 flex flex-col items-center text-center">
+          <div className="bg-white p-4 border border-slate-100 rounded-3xl shadow-inner mb-6 relative">
+            {/* Decor Corners */}
+            <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-[#71C9CE] rounded-tl-lg" />
+            <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-[#71C9CE] rounded-tr-lg" />
+            <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-[#71C9CE] rounded-bl-lg" />
+            <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-[#71C9CE] rounded-br-lg" />
+
             {data.qr_image ? (
               <img
                 src={data.qr_image}
@@ -136,20 +149,20 @@ const QrisModal = ({ data, onClose }: { data: any; onClose: () => void }) => {
                 className="w-48 h-48 object-contain mix-blend-multiply"
               />
             ) : (
-              <div className="w-48 h-48 bg-gray-100 flex items-center justify-center text-gray-400 text-xs rounded-xl">
-                [QR Code Image Here]
+              <div className="w-48 h-48 bg-gray-50 flex items-center justify-center text-gray-400 text-xs rounded-xl">
+                [QR Image Placeholder]
               </div>
             )}
           </div>
 
-          <div className="text-sm text-gray-500 mb-1 font-medium">
-            Total Pembayaran
+          <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">
+            Total Tagihan
           </div>
-          <div className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 mb-6">
+          <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#71C9CE] to-[#4AA3A8] mb-8">
             {formatRupiah(data.amount || 0)}
           </div>
 
-          <div className="flex items-center gap-2 text-blue-700 bg-blue-100/50 px-5 py-2.5 rounded-full text-sm font-semibold animate-pulse border border-blue-200/50">
+          <div className="flex items-center gap-3 text-[#71C9CE] bg-[#E3FDFD] px-6 py-3 rounded-2xl text-sm font-bold animate-pulse border border-[#A6E3E9]">
             <Loader2 className="w-4 h-4 animate-spin" />
             Menunggu Pembayaran...
           </div>
@@ -167,11 +180,13 @@ export default function TransaksiPage() {
   const [areas, setAreas] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // Notification State
   const [notification, setNotification] = useState<{
     type: "success" | "error";
     msg: string;
   } | null>(null);
 
+  // Forms State
   const [formIn, setFormIn] = useState({
     plat: "",
     jenis: "",
@@ -207,6 +222,7 @@ export default function TransaksiPage() {
       setTarifs(resTarif.data.data);
       setAreas(resArea.data.data);
 
+      // Set default select values
       if (resTarif.data.data.length && !formIn.jenis) {
         setFormIn((f) => ({
           ...f,
@@ -238,6 +254,7 @@ export default function TransaksiPage() {
     }
   };
 
+  // CHECK-IN HANDLER
   const handleCheckIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -257,6 +274,7 @@ export default function TransaksiPage() {
     }
   };
 
+  // CHECK-OUT HANDLER
   const handleCheckOut = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -284,6 +302,7 @@ export default function TransaksiPage() {
     }
   };
 
+  // POLLING LOGIC
   const startPolling = (orderId: string, trxId: number) => {
     stopPolling();
     pollingRef.current = setInterval(async () => {
@@ -310,6 +329,7 @@ export default function TransaksiPage() {
       <BackgroundDecoration />
       <StrukParkir data={strukData} componentRef={strukRef} />
 
+      {/* QRIS Modal */}
       {modalQris && (
         <QrisModal
           data={modalQris}
@@ -320,21 +340,22 @@ export default function TransaksiPage() {
         />
       )}
 
+      {/* Notification Toast */}
       {notification && (
         <div
           className={cn(
-            "fixed top-6 right-6 z-[100] flex items-center gap-3 px-5 py-4 rounded-2xl shadow-xl border animate-in slide-in-from-right duration-300 backdrop-blur-md",
+            "fixed top-6 right-6 z-[100] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-xl border animate-in slide-in-from-right duration-300 backdrop-blur-xl",
             notification.type === "success"
-              ? "bg-green-50/90 border-green-200 text-green-700"
-              : "bg-red-50/90 border-red-200 text-red-700",
+              ? "bg-[#E3FDFD]/90 border-[#A6E3E9] text-[#4AA3A8]"
+              : "bg-red-50/90 border-red-100 text-red-600",
           )}
         >
           <div
             className={cn(
               "p-2 rounded-full shadow-sm",
               notification.type === "success"
-                ? "bg-green-100 text-green-600"
-                : "bg-red-100 text-red-600",
+                ? "bg-white text-[#71C9CE]"
+                : "bg-white text-red-500",
             )}
           >
             {notification.type === "success" ? (
@@ -345,56 +366,62 @@ export default function TransaksiPage() {
           </div>
           <div>
             <p className="font-bold text-sm">
-              {notification.type === "success" ? "Berhasil" : "Gagal"}
+              {notification.type === "success" ? "Sukses" : "Gagal"}
             </p>
-            <p className="text-sm opacity-90">{notification.msg}</p>
+            <p className="text-xs font-medium opacity-90">{notification.msg}</p>
           </div>
         </div>
       )}
 
       {/* Header Section */}
-      <div className="relative mb-8 z-10">
-        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
-          Transaksi <span className="text-blue-600">Parkir</span>
+      <div className="relative mb-10 z-10">
+        <h1 className="text-3xl font-black text-slate-800 tracking-tight">
+          Transaksi <span className="text-[#71C9CE]">Kendaraan</span>
         </h1>
-        <p className="text-gray-500 mt-1 font-medium">
-          Dashboard petugas untuk manajemen kendaraan keluar/masuk.
+        <p className="text-gray-500 mt-1 font-medium text-sm">
+          Input kedatangan dan proses pembayaran parkir.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-10">
-        {/* === CARD CHECK-IN (GLASS STYLE) === */}
-        <div className="group relative overflow-hidden rounded-3xl border border-white/60 bg-white/60 p-1 shadow-xl backdrop-blur-xl transition-all duration-300 hover:shadow-2xl hover:bg-white/70">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-indigo-500/5" />
-
-          <div className="relative p-6 sm:p-8">
-            <div className="flex items-center gap-4 mb-6 pb-4 border-b border-gray-200/50">
-              <div className="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-2xl text-white shadow-lg shadow-blue-500/30">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-10 items-start">
+        {/* === CARD CHECK-IN (TEAL THEME) === */}
+        <div
+          className={cn(
+            GLASS_CARD,
+            "p-1 bg-gradient-to-br from-[#71C9CE]/10 to-transparent",
+          )}
+        >
+          <div className="relative p-8 bg-white/40 backdrop-blur-xl rounded-[1.8rem] h-full">
+            {/* Header Card */}
+            <div className="flex items-center gap-4 mb-8">
+              <div className="bg-gradient-to-br from-[#71C9CE] to-[#A6E3E9] p-3.5 rounded-2xl text-white shadow-lg shadow-[#71C9CE]/30">
                 <Ticket className="w-6 h-6" />
               </div>
               <div>
-                <h2 className="font-bold text-xl text-gray-800">Check-In</h2>
-                <p className="text-xs text-gray-500 font-medium">
-                  Input kendaraan masuk
+                <h2 className="font-black text-xl text-slate-800">Check-In</h2>
+                <p className="text-xs text-slate-500 font-bold uppercase tracking-wide">
+                  Kendaraan Masuk
                 </p>
               </div>
             </div>
 
             <form onSubmit={handleCheckIn} className="space-y-6">
-              <div className="space-y-1">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-500 ml-1">
+                  PLAT NOMOR
+                </label>
                 <Input
-                  label="Nomor Polisi"
                   placeholder="B 1234 XYZ"
                   value={formIn.plat}
                   onChange={(e) =>
                     setFormIn({ ...formIn, plat: e.target.value.toUpperCase() })
                   }
                   required
-                  className="uppercase text-lg font-semibold tracking-wide bg-white/50 border-white/50 backdrop-blur-sm focus:bg-white/80 h-12"
+                  className="uppercase text-lg font-bold tracking-widest bg-white h-14 border-transparent focus:border-[#71C9CE]"
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <Select
                   label="Jenis Kendaraan"
                   value={formIn.jenis}
@@ -405,7 +432,7 @@ export default function TransaksiPage() {
                     value: t.jenis_kendaraan,
                     label: t.jenis_kendaraan.toUpperCase(),
                   }))}
-                  className="bg-white/50 border-white/50 h-11"
+                  className="bg-white h-12"
                 />
                 <Select
                   label="Area Parkir"
@@ -417,17 +444,20 @@ export default function TransaksiPage() {
                     value: a.id_area,
                     label: a.nama_area,
                   }))}
-                  className="bg-white/50 border-white/50 h-11"
+                  className="bg-white h-12"
                 />
               </div>
 
-              <div className="bg-blue-50/50 border border-blue-100/50 p-4 rounded-2xl flex items-center gap-3 backdrop-blur-sm">
-                <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
+              {/* Info Tarif Box */}
+              <div className="bg-[#E3FDFD]/60 border border-[#A6E3E9]/50 p-5 rounded-2xl flex items-center gap-4">
+                <div className="p-2.5 bg-white rounded-xl text-[#71C9CE] shadow-sm">
                   <CarFront className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Tarif per jam</p>
-                  <p className="font-bold text-gray-800 text-lg">
+                  <p className="text-[10px] text-slate-500 font-bold uppercase">
+                    Tarif per jam
+                  </p>
+                  <p className="font-black text-slate-800 text-xl">
                     {formatRupiah(
                       tarifs.find((t) => t.jenis_kendaraan === formIn.jenis)
                         ?.tarif_per_jam || 0,
@@ -439,7 +469,7 @@ export default function TransaksiPage() {
               <Button
                 type="submit"
                 isLoading={loading}
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/30 h-12 rounded-xl text-base font-semibold transition-all hover:scale-[1.02]"
+                className="w-full bg-[#71C9CE] hover:bg-[#5dbbc0] text-white shadow-xl shadow-[#71C9CE]/20 h-14 rounded-2xl text-base font-bold transition-all hover:-translate-y-1"
               >
                 Cetak Tiket Masuk
               </Button>
@@ -447,27 +477,33 @@ export default function TransaksiPage() {
           </div>
         </div>
 
-        {/* === CARD CHECK-OUT (GLASS STYLE) === */}
-        <div className="group relative overflow-hidden rounded-3xl border border-white/60 bg-white/60 p-1 shadow-xl backdrop-blur-xl transition-all duration-300 hover:shadow-2xl hover:bg-white/70">
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-teal-500/5" />
-
-          <div className="relative p-6 sm:p-8">
-            <div className="flex items-center gap-4 mb-6 pb-4 border-b border-gray-200/50">
-              <div className="bg-gradient-to-br from-emerald-500 to-teal-600 p-3 rounded-2xl text-white shadow-lg shadow-emerald-500/30">
+        {/* === CARD CHECK-OUT (TEAL THEME) === */}
+        <div
+          className={cn(
+            GLASS_CARD,
+            "p-1 bg-gradient-to-br from-[#A6E3E9]/10 to-transparent",
+          )}
+        >
+          <div className="relative p-8 bg-white/40 backdrop-blur-xl rounded-[1.8rem] h-full">
+            {/* Header Card */}
+            <div className="flex items-center gap-4 mb-8">
+              <div className="bg-gradient-to-br from-slate-700 to-slate-800 p-3.5 rounded-2xl text-white shadow-lg shadow-slate-500/30">
                 <LogOut className="w-6 h-6" />
               </div>
               <div>
-                <h2 className="font-bold text-xl text-gray-800">Check-Out</h2>
-                <p className="text-xs text-gray-500 font-medium">
+                <h2 className="font-black text-xl text-slate-800">Check-Out</h2>
+                <p className="text-xs text-slate-500 font-bold uppercase tracking-wide">
                   Pembayaran & Keluar
                 </p>
               </div>
             </div>
 
             <form onSubmit={handleCheckOut} className="space-y-6">
-              <div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-500 ml-1">
+                  SCAN TIKET / ID
+                </label>
                 <Input
-                  label="Scan Barcode / ID Struk"
                   placeholder="Scan disini..."
                   value={formOut.strukId}
                   onChange={(e) =>
@@ -476,12 +512,12 @@ export default function TransaksiPage() {
                       strukId: e.target.value.toUpperCase(),
                     })
                   }
-                  className="font-mono text-lg bg-white/50 border-white/50 backdrop-blur-sm focus:bg-white/80 h-12"
+                  className="font-mono text-lg bg-white h-14 border-transparent focus:border-slate-400"
                 />
               </div>
 
               <div className="space-y-3">
-                <label className="text-sm font-semibold text-gray-700">
+                <label className="text-xs font-bold text-slate-500 uppercase ml-1">
                   Metode Pembayaran
                 </label>
                 <div className="grid grid-cols-2 gap-4">
@@ -491,14 +527,16 @@ export default function TransaksiPage() {
                     className={cn(
                       "flex flex-col items-center justify-center gap-2 py-4 rounded-2xl border transition-all duration-300",
                       formOut.metode === "cash"
-                        ? "bg-emerald-50/80 border-emerald-500 text-emerald-700 shadow-md ring-1 ring-emerald-500"
-                        : "bg-white/40 border-gray-200 text-gray-500 hover:bg-white/60 hover:border-emerald-300",
+                        ? "bg-[#E3FDFD] border-[#71C9CE] text-[#71C9CE] shadow-md ring-1 ring-[#71C9CE]"
+                        : "bg-white border-transparent text-slate-400 hover:bg-white/80",
                     )}
                   >
-                    <Zap
+                    <Banknote
                       className={cn(
                         "w-6 h-6",
-                        formOut.metode === "cash" ? "fill-current" : "",
+                        formOut.metode === "cash"
+                          ? "text-[#71C9CE]"
+                          : "text-slate-300",
                       )}
                     />
                     <span className="font-bold text-sm">Tunai</span>
@@ -509,8 +547,8 @@ export default function TransaksiPage() {
                     className={cn(
                       "flex flex-col items-center justify-center gap-2 py-4 rounded-2xl border transition-all duration-300",
                       formOut.metode === "qris"
-                        ? "bg-blue-50/80 border-blue-500 text-blue-700 shadow-md ring-1 ring-blue-500"
-                        : "bg-white/40 border-gray-200 text-gray-500 hover:bg-white/60 hover:border-blue-300",
+                        ? "bg-slate-100 border-slate-600 text-slate-800 shadow-md ring-1 ring-slate-600"
+                        : "bg-white border-transparent text-slate-400 hover:bg-white/80",
                     )}
                   >
                     <QrCode className="w-6 h-6" />
@@ -520,7 +558,7 @@ export default function TransaksiPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-700">
+                <label className="text-xs font-bold text-slate-500 uppercase ml-1">
                   Foto Identitas (Opsional)
                 </label>
                 <div className="relative">
@@ -532,13 +570,13 @@ export default function TransaksiPage() {
                         foto: e.target.files ? e.target.files[0] : null,
                       })
                     }
-                    className="block w-full text-sm text-gray-500
-                        file:mr-4 file:py-2.5 file:px-4
+                    className="block w-full text-sm text-slate-500
+                        file:mr-4 file:py-3 file:px-6
                         file:rounded-xl file:border-0
-                        file:text-sm file:font-semibold
-                        file:bg-emerald-50 file:text-emerald-700
-                        hover:file:bg-emerald-100
-                        cursor-pointer bg-white/50 border border-white/50 rounded-xl"
+                        file:text-xs file:font-bold
+                        file:bg-[#E3FDFD] file:text-[#71C9CE]
+                        hover:file:bg-[#CBF1F5]
+                        cursor-pointer bg-white rounded-xl p-1"
                   />
                 </div>
               </div>
@@ -546,7 +584,7 @@ export default function TransaksiPage() {
               <Button
                 type="submit"
                 isLoading={loading}
-                className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/30 h-12 rounded-xl text-base font-semibold transition-all hover:scale-[1.02] mt-2"
+                className="w-full bg-slate-800 hover:bg-slate-900 text-white shadow-xl shadow-slate-500/20 h-14 rounded-2xl text-base font-bold transition-all hover:-translate-y-1 mt-2"
               >
                 Proses Checkout
               </Button>

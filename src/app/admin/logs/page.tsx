@@ -13,7 +13,6 @@ import {
   Edit,
   LogIn,
   LogOut,
-  AlertCircle,
   FileText,
   ChevronLeft,
   ChevronRight,
@@ -21,9 +20,14 @@ import {
   History,
   Clock,
   User as UserIcon,
+  Filter,
 } from "lucide-react";
 import { getInitials, cn } from "@/lib/utils";
 import api from "@/lib/axios";
+
+// Style Constants
+const GLASS_CARD =
+  "bg-white/70 backdrop-blur-xl border border-white/40 shadow-xl shadow-[#71C9CE]/5 rounded-[2rem] overflow-hidden";
 
 interface LogData {
   id_log: number;
@@ -35,12 +39,11 @@ interface LogData {
   } | null;
 }
 
-const GLASS_STYLE =
-  "bg-white/70 backdrop-blur-xl border border-white/40 shadow-xl shadow-blue-900/5";
-
 export default function LogPage() {
   const [logs, setLogs] = useState<LogData[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Filtering & Pagination
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -53,7 +56,7 @@ export default function LogPage() {
       const data = Array.isArray(response.data.data)
         ? response.data.data
         : response.data;
-      setLogs(data); // Backend sudah mengurutkan berdasarkan DESC
+      setLogs(data); // Backend expected sort DESC
     } catch (error) {
       console.error("Gagal ambil logs", error);
     } finally {
@@ -65,6 +68,7 @@ export default function LogPage() {
     fetchLogs();
   }, []);
 
+  // Filter Logic
   const filteredLogs = useMemo(() => {
     return logs.filter((log) => {
       const matchesSearch =
@@ -76,160 +80,165 @@ export default function LogPage() {
     });
   }, [logs, search, roleFilter]);
 
+  // Pagination Logic
   const totalPages = Math.ceil(filteredLogs.length / itemsPerPage);
   const currentLogs = filteredLogs.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage,
   );
 
+  // Reset page when filter changes
   useEffect(() => {
     setCurrentPage(1);
   }, [search, roleFilter]);
 
+  // Helper: Activity Icon & Color
   const getActivityStyle = (text: string) => {
     const t = text.toLowerCase();
     if (t.includes("hapus") || t.includes("delete"))
       return {
         icon: Trash2,
-        color: "text-rose-600 bg-rose-50 border-rose-100 ring-rose-500/20",
+        color: "text-rose-500 bg-rose-50 border-rose-100",
       };
-    if (
-      t.includes("tambah") ||
-      t.includes("create") ||
-      t.includes("check-in") ||
-      t.includes("masuk")
-    )
+    if (t.includes("tambah") || t.includes("create") || t.includes("check-in"))
       return {
         icon: PlusCircle,
-        color:
-          "text-emerald-600 bg-emerald-50 border-emerald-100 ring-emerald-500/20",
+        color: "text-emerald-500 bg-emerald-50 border-emerald-100",
       };
-    if (
-      t.includes("edit") ||
-      t.includes("update") ||
-      t.includes("checkout") ||
-      t.includes("keluar")
-    )
+    if (t.includes("edit") || t.includes("update"))
       return {
         icon: Edit,
-        color: "text-sky-600 bg-sky-50 border-sky-100 ring-sky-500/20",
+        color: "text-sky-500 bg-sky-50 border-sky-100",
       };
-    if (t.includes("login"))
+    if (t.includes("login") || t.includes("masuk"))
       return {
         icon: LogIn,
-        color:
-          "text-indigo-600 bg-indigo-50 border-indigo-100 ring-indigo-500/20",
+        color: "text-indigo-500 bg-indigo-50 border-indigo-100",
+      };
+    if (t.includes("logout") || t.includes("keluar"))
+      return {
+        icon: LogOut,
+        color: "text-slate-500 bg-slate-50 border-slate-200",
       };
 
     return {
       icon: FileText,
-      color: "text-slate-600 bg-slate-50 border-slate-100 ring-slate-500/20",
+      color: "text-slate-500 bg-slate-50 border-slate-200",
     };
   };
 
   return (
     <DashboardLayout requiredRole="admin">
-      {/* Background Decor */}
-      <div className="fixed inset-0 -z-10 pointer-events-none">
-        <div className="absolute top-[10%] left-[20%] w-[600px] h-[600px] bg-purple-400/5 rounded-full blur-[120px]" />
-      </div>
-
-      {/* HEADER */}
+      {/* HEADER SECTION */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
         <div>
-          <div className="flex items-center gap-2 mb-2 text-indigo-600 font-bold text-xs uppercase tracking-[0.2em]">
-            <ShieldCheck size={16} /> Audit Trail & System Security
-          </div>
-          <h1 className="text-4xl font-black text-slate-800 tracking-tight">
-            Log{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
-              Aktivitas
+          <div className="flex items-center gap-2 mb-1">
+            <ShieldCheck className="w-5 h-5 text-[#71C9CE]" />
+            <span className="text-xs font-bold text-[#71C9CE] uppercase tracking-widest">
+              Audit Trail
             </span>
+          </div>
+          <h1 className="text-3xl font-black text-slate-800 tracking-tight">
+            Log Aktivitas Sistem
           </h1>
+          <p className="text-gray-500 font-medium text-sm mt-1">
+            Rekaman jejak digital keamanan dan operasional.
+          </p>
         </div>
 
         <Button
           onClick={fetchLogs}
           disabled={loading}
-          className="bg-white/50 backdrop-blur-md border border-slate-200 text-slate-700 hover:bg-white rounded-2xl px-6 py-6 shadow-sm flex items-center gap-2 font-bold"
+          variant="secondary"
+          className="shadow-sm border-gray-200"
         >
-          <RefreshCw className={cn("w-4 h-4", loading && "animate-spin")} />
-          Refresh Audit
+          <RefreshCw
+            className={cn("w-4 h-4 mr-2", loading && "animate-spin")}
+          />
+          Refresh Data
         </Button>
       </div>
 
-      {/* FILTER BOX */}
-      <div
-        className={cn(
-          GLASS_STYLE,
-          "p-6 rounded-3xl mb-8 flex flex-col md:flex-row gap-4",
-        )}
-      >
-        <div className="flex-1 relative">
-          <Input
-            placeholder="Cari aktivitas atau nama petugas..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="bg-white/50 border-white/60 focus:bg-white rounded-2xl pl-12 h-12"
-          />
-          <Search
-            className="absolute left-4 top-3.5 text-slate-400"
-            size={18}
-          />
-        </div>
-        <div className="w-full md:w-56">
-          <Select
-            options={[
-              { value: "all", label: "Semua Jabatan" },
-              { value: "admin", label: "Administrator" },
-              { value: "petugas", label: "Petugas Lapangan" },
-              { value: "owner", label: "Pemilik (Owner)" },
-            ]}
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-            className="rounded-2xl h-12"
-          />
+      {/* FILTER BAR */}
+      <div className={cn(GLASS_CARD, "p-6 mb-8")}>
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1 relative group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-[#71C9CE] transition-colors" />
+            <Input
+              placeholder="Cari aktivitas atau nama user..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="bg-white pl-12 h-12" // Override padding
+            />
+          </div>
+
+          <div className="w-full md:w-64 relative">
+            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10 pointer-events-none" />
+            <Select
+              options={[
+                { value: "all", label: "Semua Role" },
+                { value: "admin", label: "Admin" },
+                { value: "petugas", label: "Petugas" },
+                { value: "owner", label: "Owner" },
+              ]}
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              className="bg-white pl-10 h-12"
+            />
+          </div>
         </div>
       </div>
 
-      {/* LOG TABLE */}
-      <div
-        className={cn(
-          GLASS_STYLE,
-          "rounded-[2.5rem] overflow-hidden flex flex-col min-h-[500px]",
-        )}
-      >
+      {/* LOG TABLE CARD */}
+      <div className={cn(GLASS_CARD, "flex flex-col min-h-[500px]")}>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left border-collapse">
-            <thead>
-              <tr className="bg-white/40 text-slate-400 font-bold text-[10px] uppercase tracking-[0.15em] border-b border-white/40">
+          <table className="w-full text-sm text-left">
+            <thead className="bg-[#E3FDFD]/50 text-slate-500 font-bold uppercase text-[11px] tracking-wider border-b border-[#A6E3E9]/30">
+              <tr>
                 <th className="px-8 py-5 flex items-center gap-2">
-                  <Clock size={12} /> Waktu Kejadian
+                  <Clock className="w-3 h-3" /> Timestamp
                 </th>
-                <th className="px-8 py-5">
-                  <UserIcon size={12} className="inline mr-2" />
-                  Pelaku Sistem
-                </th>
-                <th className="px-8 py-5">Detail Deskripsi Aktivitas</th>
+                <th className="px-8 py-5">User / Aktor</th>
+                <th className="px-8 py-5">Detail Aktivitas</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/20">
+            <tbody className="divide-y divide-gray-100/50">
               {loading ? (
-                [...Array(6)].map((_, i) => (
-                  <tr key={i} className="animate-pulse">
-                    <td colSpan={3} className="px-8 py-8">
-                      <div className="h-10 bg-white/40 rounded-2xl w-full" />
+                [...Array(5)].map((_, i) => (
+                  <tr key={i} className="animate-pulse bg-white/30">
+                    <td className="px-8 py-6">
+                      <div className="h-4 w-32 bg-gray-200 rounded" />
+                      <div className="h-3 w-20 bg-gray-200 rounded mt-2" />
+                    </td>
+                    <td className="px-8">
+                      <div className="flex gap-3">
+                        <div className="w-10 h-10 bg-gray-200 rounded-full" />
+                        <div className="space-y-2">
+                          <div className="h-4 w-24 bg-gray-200 rounded" />
+                          <div className="h-3 w-12 bg-gray-200 rounded" />
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-8">
+                      <div className="h-4 w-64 bg-gray-200 rounded" />
                     </td>
                   </tr>
                 ))
               ) : currentLogs.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="py-32 text-center">
-                    <div className="flex flex-col items-center opacity-30 italic">
-                      <History size={64} strokeWidth={1} />
-                      <p className="mt-4 text-lg font-bold">
-                        Belum ada rekaman aktivitas hari ini
-                      </p>
+                  <td colSpan={3} className="py-24 text-center">
+                    <div className="flex flex-col items-center justify-center gap-4 opacity-50">
+                      <div className="p-4 bg-slate-100 rounded-full">
+                        <History className="w-8 h-8 text-slate-400" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-600">
+                          Tidak ada log ditemukan
+                        </p>
+                        <p className="text-xs text-slate-400">
+                          Coba ubah filter pencarian Anda
+                        </p>
+                      </div>
                     </div>
                   </td>
                 </tr>
@@ -241,23 +250,24 @@ export default function LogPage() {
                   return (
                     <tr
                       key={log.id_log}
-                      className="group hover:bg-white/40 transition-all duration-300"
+                      className="group hover:bg-white/60 transition-all duration-200"
                     >
-                      <td className="px-8 py-6 whitespace-nowrap">
+                      {/* Timestamp */}
+                      <td className="px-8 py-5 whitespace-nowrap">
                         <div className="flex flex-col">
-                          <span className="font-black text-slate-800 text-base italic tracking-tight">
+                          <span className="font-bold text-slate-700 text-sm">
                             {new Date(log.waktu_aktivitas).toLocaleTimeString(
                               "id-ID",
                               { hour: "2-digit", minute: "2-digit" },
                             )}{" "}
                             WIB
                           </span>
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter mt-0.5">
+                          <span className="text-[10px] font-medium text-slate-400 mt-0.5">
                             {new Date(log.waktu_aktivitas).toLocaleDateString(
                               "id-ID",
                               {
-                                day: "2-digit",
-                                month: "long",
+                                day: "numeric",
+                                month: "short",
                                 year: "numeric",
                               },
                             )}
@@ -265,48 +275,39 @@ export default function LogPage() {
                         </div>
                       </td>
 
-                      <td className="px-8 py-6">
-                        <div className="flex items-center gap-4">
-                          <div
-                            className={cn(
-                              "w-11 h-11 rounded-2xl flex items-center justify-center text-sm font-black text-white shadow-lg shadow-indigo-100",
-                              log.user?.role === "admin"
-                                ? "bg-indigo-600"
-                                : log.user?.role === "petugas"
-                                  ? "bg-sky-600"
-                                  : log.user?.role === "owner"
-                                    ? "bg-amber-500"
-                                    : "bg-slate-400",
-                            )}
-                          >
+                      {/* User Info */}
+                      <td className="px-8 py-5">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#71C9CE] to-[#A6E3E9] flex items-center justify-center text-white text-xs font-bold shadow-sm shadow-[#71C9CE]/20">
                             {getInitials(log.user?.nama_lengkap || "?")}
                           </div>
                           <div>
-                            <div className="font-black text-slate-800 tracking-tight leading-none mb-1">
+                            <p className="font-bold text-slate-800 text-sm leading-tight">
                               {log.user?.nama_lengkap || (
-                                <span className="text-rose-500 italic">
-                                  User Terhapus
+                                <span className="italic text-slate-400">
+                                  Deleted User
                                 </span>
                               )}
-                            </div>
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/60 border border-slate-100 text-slate-500 uppercase">
-                              {log.user?.role || "unknown"}
+                            </p>
+                            <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-[#E3FDFD] text-[#71C9CE] border border-[#A6E3E9] uppercase mt-0.5">
+                              {log.user?.role || "UNKNOWN"}
                             </span>
                           </div>
                         </div>
                       </td>
 
-                      <td className="px-8 py-6">
-                        <div className="flex items-center gap-4">
+                      {/* Activity Detail */}
+                      <td className="px-8 py-5">
+                        <div className="flex items-start gap-3">
                           <div
                             className={cn(
-                              "p-2.5 rounded-xl border-2 ring-4",
+                              "p-2 rounded-lg border shrink-0 mt-0.5",
                               style.color,
                             )}
                           >
                             <Icon className="w-4 h-4" />
                           </div>
-                          <p className="text-slate-700 font-bold leading-relaxed max-w-xl">
+                          <p className="text-slate-600 text-sm leading-relaxed font-medium pt-1">
                             {log.aktivitas}
                           </p>
                         </div>
@@ -319,32 +320,36 @@ export default function LogPage() {
           </table>
         </div>
 
-        {/* PAGINATION FOOTER */}
-        <div className="mt-auto border-t border-white/40 p-6 bg-white/30 flex items-center justify-between">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+        {/* FOOTER PAGINATION */}
+        <div className="mt-auto border-t border-[#A6E3E9]/30 p-6 bg-gradient-to-r from-[#E3FDFD]/30 to-white/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs font-bold text-slate-400">
             Showing <span className="text-slate-800">{currentLogs.length}</span>{" "}
-            of {filteredLogs.length} entries
+            of {filteredLogs.length} records
           </p>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <Button
-              variant="outline"
+              variant="secondary"
+              size="sm"
               disabled={currentPage === 1 || loading}
-              onClick={() => setCurrentPage((prev) => prev - 1)}
-              className="rounded-xl border-slate-200 bg-white/50 px-4 py-2 hover:bg-white"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              className="h-9 px-3"
             >
-              <ChevronLeft size={16} />
+              <ChevronLeft className="w-4 h-4" />
             </Button>
-            <div className="text-xs font-black text-slate-800 px-3 py-1 bg-white rounded-lg shadow-sm">
-              {currentPage} / {totalPages || 1}
+
+            <div className="px-4 py-2 bg-white rounded-xl text-xs font-black text-slate-700 border border-gray-100 shadow-sm">
+              Page {currentPage} / {totalPages || 1}
             </div>
+
             <Button
-              variant="outline"
+              variant="secondary"
+              size="sm"
               disabled={currentPage >= totalPages || loading}
-              onClick={() => setCurrentPage((prev) => prev + 1)}
-              className="rounded-xl border-slate-200 bg-white/50 px-4 py-2 hover:bg-white"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              className="h-9 px-3"
             >
-              <ChevronRight size={16} />
+              <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
         </div>

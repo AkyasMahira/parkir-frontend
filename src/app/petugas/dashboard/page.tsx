@@ -14,6 +14,7 @@ import {
   QrCode,
   Banknote,
   Clock,
+  MoreHorizontal,
 } from "lucide-react";
 import { formatRupiah, cn } from "@/lib/utils";
 import api from "@/lib/axios";
@@ -27,23 +28,27 @@ interface Transaksi {
   waktu_keluar?: string;
   status: string;
   biaya_total: number;
-  metode_bayar?: string; // Tambahkan ini
+  metode_bayar?: string;
   area?: { nama_area: string };
 }
 
 interface DashboardStats {
   sedangParkir: number;
   transaksiHariIni: number;
-  pendapatanTunai: number; // Uang di Laci
-  pendapatanQris: number; // Uang di Bank
+  pendapatanTunai: number;
+  pendapatanQris: number;
 }
+
+// --- STYLE CONSTANTS ---
+const GLASS_CARD =
+  "bg-white/70 backdrop-blur-xl border border-white/40 shadow-xl shadow-[#71C9CE]/5 rounded-[2rem] overflow-hidden";
 
 // --- COMPONENT STAT CARD (GLASS STYLE) ---
 interface StatCardProps {
   label: string;
   value: string | number;
   icon: React.ElementType;
-  color: "blue" | "green" | "orange" | "purple";
+  theme: "teal" | "green" | "orange" | "purple";
   isLoading: boolean;
   description?: string;
 }
@@ -52,28 +57,51 @@ const StatCard = ({
   label,
   value,
   icon: Icon,
-  color,
+  theme,
   isLoading,
   description,
 }: StatCardProps) => {
   const styles = {
-    blue: { bgIcon: "bg-blue-100", textIcon: "text-blue-600" },
-    green: { bgIcon: "bg-emerald-100", textIcon: "text-emerald-600" }, // Cash
-    orange: { bgIcon: "bg-amber-100", textIcon: "text-amber-600" }, // Keluar
-    purple: { bgIcon: "bg-purple-100", textIcon: "text-purple-600" }, // QRIS
+    teal: {
+      bgIcon: "bg-[#E3FDFD]",
+      textIcon: "text-[#71C9CE]",
+      ring: "ring-[#71C9CE]/20",
+    },
+    green: {
+      bgIcon: "bg-emerald-50",
+      textIcon: "text-emerald-500",
+      ring: "ring-emerald-500/20",
+    },
+    orange: {
+      bgIcon: "bg-amber-50",
+      textIcon: "text-amber-500",
+      ring: "ring-amber-500/20",
+    },
+    purple: {
+      bgIcon: "bg-purple-50",
+      textIcon: "text-purple-500",
+      ring: "ring-purple-500/20",
+    },
   };
 
-  const currentStyle = styles[color];
+  const currentStyle = styles[theme];
 
   return (
-    <div className="group relative overflow-hidden rounded-3xl border border-white/50 bg-white/60 p-6 shadow-xl backdrop-blur-xl transition-all duration-300 hover:shadow-2xl hover:bg-white/70 hover:-translate-y-1">
+    <div
+      className={cn(
+        GLASS_CARD,
+        "p-6 group hover:-translate-y-1 transition-all duration-300 hover:shadow-2xl",
+      )}
+    >
       <div className="flex items-start justify-between relative z-10">
         <div>
-          <p className="text-sm font-medium text-gray-500 mb-1">{label}</p>
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
+            {label}
+          </p>
           {isLoading ? (
-            <div className="h-8 w-24 bg-gray-200/50 rounded animate-pulse mb-1"></div>
+            <div className="h-9 w-24 bg-gray-200/50 rounded animate-pulse mb-1"></div>
           ) : (
-            <h3 className="text-3xl font-extrabold text-gray-800 tracking-tight">
+            <h3 className="text-3xl font-black text-slate-800 tracking-tight">
               {value}
             </h3>
           )}
@@ -85,7 +113,7 @@ const StatCard = ({
         </div>
         <div
           className={cn(
-            "p-3 rounded-2xl shadow-sm transition-transform group-hover:scale-110",
+            "p-3.5 rounded-2xl shadow-sm transition-transform group-hover:scale-110",
             currentStyle.bgIcon,
             currentStyle.textIcon,
           )}
@@ -93,14 +121,6 @@ const StatCard = ({
           <Icon className="w-6 h-6" />
         </div>
       </div>
-
-      {/* Decorative Gradient Background */}
-      <div
-        className={cn(
-          "absolute -bottom-4 -right-4 w-24 h-24 rounded-full opacity-10 blur-xl",
-          currentStyle.bgIcon,
-        )}
-      />
     </div>
   );
 };
@@ -144,13 +164,12 @@ export default function PetugasDashboard() {
         const todayStr = new Date().toLocaleDateString("id-ID");
 
         // --- FILTER LOGIC ---
-
         // 1. Sedang Parkir
         const active = rawData.filter(
           (t) => t.status === "parkir" || t.status === "masuk",
         ).length;
 
-        // 2. Transaksi Hari Ini (Status Selesai/Keluar & Tanggal Hari Ini)
+        // 2. Transaksi Hari Ini
         const todaysTx = rawData.filter((t) => {
           if (
             (t.status !== "selesai" && t.status !== "keluar") ||
@@ -191,19 +210,19 @@ export default function PetugasDashboard() {
     switch (status) {
       case "parkir":
         return (
-          <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase border border-blue-200">
-            Parkir
+          <span className="bg-[#E3FDFD] text-[#71C9CE] px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase border border-[#A6E3E9]">
+            Active
           </span>
         );
       case "selesai":
         return (
-          <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase border border-green-200">
-            Selesai
+          <span className="bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase border border-emerald-100">
+            Done
           </span>
         );
       default:
         return (
-          <span className="bg-gray-100 text-gray-500 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase">
+          <span className="bg-gray-100 text-gray-500 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase">
             {status}
           </span>
         );
@@ -213,42 +232,45 @@ export default function PetugasDashboard() {
   return (
     <DashboardLayout requiredRole="petugas">
       {/* HEADER SECTION */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 relative z-10">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
         <div>
-          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+          <div className="flex items-center gap-2 mb-1">
+            <CalendarDays className="w-4 h-4 text-[#71C9CE]" />
+            <span className="text-xs font-bold text-[#71C9CE] uppercase tracking-widest">
+              {currentDate}
+            </span>
+          </div>
+          <h1 className="text-4xl font-black text-slate-800 tracking-tight">
             Halo,{" "}
-            <span className="text-blue-600">
-              {user?.nama_lengkap?.split(" ")[0] || "Petugas"}!
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#71C9CE] to-[#4AA3A8]">
+              {user?.nama_lengkap?.split(" ")[0] || "Petugas"}
             </span>{" "}
             👋
           </h1>
-          <p className="text-gray-500 mt-1 flex items-center gap-2 text-sm font-medium">
-            <CalendarDays className="w-4 h-4 text-blue-500" />
-            {currentDate}
+          <p className="text-gray-500 font-medium mt-1">
+            Selamat bertugas! Pantau aktivitas parkir hari ini.
           </p>
         </div>
 
         <div className="hidden md:block">
           <Link href="/petugas/transaksi">
-            <div className="bg-white/80 backdrop-blur-md p-1 pr-4 rounded-full border border-white/60 shadow-sm flex items-center gap-3 hover:shadow-md transition-all group cursor-pointer">
-              <div className="bg-blue-600 text-white p-2 rounded-full group-hover:scale-110 transition-transform">
+            <button className="bg-white hover:bg-[#E3FDFD] text-slate-700 hover:text-[#71C9CE] font-bold text-sm px-6 py-3 rounded-2xl shadow-sm border border-gray-100 transition-all flex items-center gap-3 group">
+              <span className="bg-[#71C9CE] text-white p-1.5 rounded-lg group-hover:scale-110 transition-transform">
                 <ArrowRight className="w-4 h-4" />
-              </div>
-              <span className="text-sm font-bold text-gray-700 group-hover:text-blue-600">
-                Input Kendaraan
               </span>
-            </div>
+              Input Kendaraan Baru
+            </button>
           </Link>
         </div>
       </div>
 
-      {/* STATS GRID (4 KOLOM) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 relative z-10">
+      {/* STATS GRID */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatCard
           label="Sedang Parkir"
           value={stats.sedangParkir}
           icon={Car}
-          color="blue"
+          theme="teal"
           isLoading={loading}
           description="Kendaraan aktif"
         />
@@ -257,7 +279,7 @@ export default function PetugasDashboard() {
           label="Kendaraan Keluar"
           value={stats.transaksiHariIni}
           icon={CheckCircle2}
-          color="orange"
+          theme="orange"
           isLoading={loading}
           description="Total hari ini"
         />
@@ -267,7 +289,7 @@ export default function PetugasDashboard() {
           label="Uang Tunai"
           value={formatRupiah(stats.pendapatanTunai)}
           icon={Banknote}
-          color="green"
+          theme="green"
           isLoading={loading}
           description="Wajib disetor"
         />
@@ -277,35 +299,37 @@ export default function PetugasDashboard() {
           label="Pendapatan QRIS"
           value={formatRupiah(stats.pendapatanQris)}
           icon={QrCode}
-          color="purple"
+          theme="purple"
           isLoading={loading}
-          description="Otomatis ke Bank"
+          description="Masuk ke Bank"
         />
       </div>
 
       {/* MAIN CONTENT AREA */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* LEFT: CTA SECTION */}
-        <div className="lg:col-span-1">
-          <div className="relative overflow-hidden rounded-3xl p-6 md:p-8 text-white shadow-xl shadow-blue-500/20 group h-full flex flex-col justify-between">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-indigo-700 transition-all duration-500 group-hover:scale-105"></div>
-            <div className="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl"></div>
+        <div className="lg:col-span-1 h-full">
+          <div className="relative overflow-hidden rounded-[2rem] p-8 text-white shadow-xl shadow-[#71C9CE]/20 h-full flex flex-col justify-between group bg-gradient-to-br from-[#71C9CE] to-[#4AA3A8]">
+            {/* Background Blob Animation */}
+            <div className="absolute -top-20 -right-20 w-60 h-60 bg-white/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700" />
+            <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#4AA3A8]/50 to-transparent" />
 
             <div className="relative z-10">
-              <div className="flex items-center gap-2 mb-4 bg-white/20 w-fit px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md border border-white/20">
+              <div className="inline-flex items-center gap-2 mb-6 bg-white/20 px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-md border border-white/20">
                 <TrendingUp className="w-3 h-3" />
                 Aksi Cepat
               </div>
-              <h3 className="text-2xl font-bold mb-3 leading-tight">
-                Kendaraan Baru Masuk?
+              <h3 className="text-3xl font-black mb-4 leading-tight">
+                Kendaraan <br /> Baru Masuk?
               </h3>
-              <p className="text-blue-100 text-sm leading-relaxed mb-6">
-                Input plat nomor segera untuk mencetak tiket dan QR Code parkir.
+              <p className="text-white/90 text-sm leading-relaxed font-medium mb-8">
+                Catat plat nomor kendaraan masuk untuk mencetak tiket QR Code
+                secara otomatis.
               </p>
             </div>
 
             <Link href="/petugas/transaksi" className="relative z-10 mt-auto">
-              <button className="w-full py-4 bg-white text-blue-700 font-bold rounded-2xl hover:bg-blue-50 active:scale-95 transition-all shadow-lg flex items-center justify-center gap-2">
+              <button className="w-full py-4 bg-white text-[#71C9CE] font-bold rounded-2xl hover:bg-[#E3FDFD] active:scale-95 transition-all shadow-lg flex items-center justify-center gap-3">
                 <CarFront className="w-5 h-5" />
                 Input Transaksi
               </button>
@@ -315,41 +339,44 @@ export default function PetugasDashboard() {
 
         {/* RIGHT: RECENT ACTIVITY */}
         <div className="lg:col-span-2">
-          <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/50 shadow-xl overflow-hidden h-full">
-            <div className="p-6 border-b border-gray-100/50 flex justify-between items-center">
-              <h3 className="font-bold text-gray-800">Aktivitas Terkini</h3>
+          <div className={cn(GLASS_CARD, "h-full flex flex-col")}>
+            <div className="p-8 border-b border-[#A6E3E9]/30 flex justify-between items-center bg-gradient-to-r from-[#E3FDFD]/30 to-white/30">
+              <h3 className="font-black text-slate-800 text-lg">
+                Aktivitas Terkini
+              </h3>
               <Link
                 href="/petugas/riwayat"
-                className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline"
+                className="text-xs font-bold text-[#71C9CE] hover:text-[#4AA3A8] flex items-center gap-1"
               >
-                Lihat Semua
+                Lihat Semua <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
-            <div className="overflow-x-auto">
+
+            <div className="overflow-x-auto flex-1">
               <table className="w-full text-sm text-left">
-                <thead className="bg-white/40 text-gray-500 font-semibold border-b border-gray-200/50 uppercase text-xs">
+                <thead className="bg-[#E3FDFD]/50 text-slate-500 font-bold uppercase text-[10px] tracking-wider border-b border-[#A6E3E9]/30">
                   <tr>
-                    <th className="px-6 py-4">Waktu</th>
-                    <th className="px-6 py-4">Plat Nomor</th>
-                    <th className="px-6 py-4">Metode</th>
-                    <th className="px-6 py-4 text-right">Biaya</th>
+                    <th className="px-8 py-5">Waktu</th>
+                    <th className="px-6 py-5">Plat Nomor</th>
+                    <th className="px-6 py-5">Status / Metode</th>
+                    <th className="px-8 py-5 text-right">Biaya</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100/50">
                   {loading ? (
                     [...Array(4)].map((_, i) => (
-                      <tr key={i} className="animate-pulse">
-                        <td className="px-6 py-4">
-                          <div className="h-4 bg-gray-200/50 rounded w-16"></div>
+                      <tr key={i} className="animate-pulse bg-white/30">
+                        <td className="px-8 py-4">
+                          <div className="h-4 bg-gray-200 rounded w-16"></div>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="h-4 bg-gray-200/50 rounded w-24"></div>
+                        <td className="px-6">
+                          <div className="h-4 bg-gray-200 rounded w-24"></div>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="h-4 bg-gray-200/50 rounded w-12"></div>
+                        <td className="px-6">
+                          <div className="h-4 bg-gray-200 rounded w-12"></div>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="h-4 bg-gray-200/50 rounded w-16 ml-auto"></div>
+                        <td className="px-8">
+                          <div className="h-4 bg-gray-200 rounded w-16 ml-auto"></div>
                         </td>
                       </tr>
                     ))
@@ -357,36 +384,38 @@ export default function PetugasDashboard() {
                     <tr>
                       <td
                         colSpan={4}
-                        className="text-center py-8 text-gray-500 italic"
+                        className="text-center py-12 text-gray-400 italic"
                       >
-                        Belum ada aktivitas.
+                        Belum ada aktivitas hari ini.
                       </td>
                     </tr>
                   ) : (
                     recentData.map((row) => (
                       <tr
                         key={row.id_transaksi}
-                        className="hover:bg-blue-50/30 transition-colors"
+                        className="hover:bg-white/60 transition-colors group"
                       >
-                        <td className="px-6 py-4 text-gray-600 flex items-center gap-2">
-                          <Clock className="w-3.5 h-3.5 text-gray-400" />
+                        <td className="px-8 py-5 text-slate-500 flex items-center gap-2 font-medium">
+                          <Clock className="w-3.5 h-3.5 text-[#71C9CE]" />
                           {new Date(row.waktu_masuk).toLocaleTimeString(
                             "id-ID",
                             { hour: "2-digit", minute: "2-digit" },
                           )}
                         </td>
-                        <td className="px-6 py-4 font-bold text-gray-800">
+
+                        <td className="px-6 py-5 font-black text-slate-700">
                           {row.plat_nomor}
                         </td>
-                        <td className="px-6 py-4">
+
+                        <td className="px-6 py-5">
                           {row.status === "selesai" && row.biaya_total > 0 ? (
                             <span
                               className={cn(
-                                "text-[10px] font-bold uppercase px-2 py-0.5 rounded",
+                                "text-[10px] font-bold uppercase px-2.5 py-1 rounded-lg border",
                                 (row.biaya_total > 0 && !row.metode_bayar) ||
                                   row.metode_bayar === "cash"
-                                  ? "bg-emerald-100 text-emerald-700"
-                                  : "bg-purple-100 text-purple-700",
+                                  ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+                                  : "bg-purple-50 text-purple-600 border-purple-100",
                               )}
                             >
                               {row.metode_bayar || "CASH"}
@@ -395,10 +424,13 @@ export default function PetugasDashboard() {
                             getStatusBadge(row.status)
                           )}
                         </td>
-                        <td className="px-6 py-4 text-right font-medium text-emerald-600">
-                          {row.biaya_total > 0
-                            ? formatRupiah(row.biaya_total)
-                            : "-"}
+
+                        <td className="px-8 py-5 text-right font-bold text-slate-700">
+                          {row.biaya_total > 0 ? (
+                            formatRupiah(row.biaya_total)
+                          ) : (
+                            <span className="text-gray-300">-</span>
+                          )}
                         </td>
                       </tr>
                     ))

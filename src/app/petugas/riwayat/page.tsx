@@ -7,7 +7,6 @@ import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import {
   Search,
-  Download,
   ChevronLeft,
   ChevronRight,
   Calendar,
@@ -23,6 +22,10 @@ import { formatRupiah, cn } from "@/lib/utils";
 import api from "@/lib/axios";
 import { useReactToPrint } from "react-to-print";
 
+// Style Constants
+const GLASS_CARD =
+  "bg-white/70 backdrop-blur-xl border border-white/40 shadow-xl shadow-[#71C9CE]/5 rounded-[2rem] overflow-hidden";
+
 /* =========================================
    1. KOMPONEN STRUK (HIDDEN - UNTUK PRINT)
    ========================================= */
@@ -32,9 +35,9 @@ const StrukPrintTemplate = ({ data, componentRef }: any) => {
     <div className="hidden">
       <div ref={componentRef} className="p-4 font-mono text-xs w-[58mm]">
         <div className="text-center font-bold mb-2 uppercase">
-          PARKIRAN CANGGIH
+          COACHPRO PARKING
           <br />
-          <span className="font-normal capitalize">Jl. Teknologi No. 1</span>
+          <span className="font-normal capitalize">Smart System Area</span>
         </div>
         <div className="border-b border-dashed border-black my-2" />
         <table className="w-full text-[10px]">
@@ -44,7 +47,7 @@ const StrukPrintTemplate = ({ data, componentRef }: any) => {
               <td className="text-right font-bold">{data.struk_id}</td>
             </tr>
             <tr>
-              <td>Plat</td>
+              <td>Plat No</td>
               <td className="text-right font-bold">{data.plat_nomor}</td>
             </tr>
             <tr>
@@ -77,7 +80,7 @@ const StrukPrintTemplate = ({ data, componentRef }: any) => {
 };
 
 /* =========================================
-   2. KOMPONEN MODAL PREVIEW STRUK
+   2. KOMPONEN MODAL PREVIEW STRUK (GLASS STYLE)
    ========================================= */
 const StrukModal = ({
   data,
@@ -93,69 +96,92 @@ const StrukModal = ({
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 animate-in fade-in duration-200">
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-[#0F172A]/40 backdrop-blur-md transition-opacity"
         onClick={onClose}
       />
-      <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden scale-100 animate-in zoom-in-95 duration-200 border border-white/40">
-        <div className="bg-gray-50 border-b border-gray-100 p-4 flex justify-between items-center">
-          <h3 className="font-bold text-gray-800 flex items-center gap-2">
-            <CarFront className="w-5 h-5 text-blue-600" /> Detail Struk
+      <div className="relative bg-white/95 backdrop-blur-2xl rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden scale-100 animate-in zoom-in-95 duration-200 border border-white/50">
+        {/* Header Modal */}
+        <div className="bg-gradient-to-r from-[#E3FDFD] to-white border-b border-[#A6E3E9]/30 p-5 flex justify-between items-center">
+          <h3 className="font-bold text-slate-800 flex items-center gap-2">
+            <div className="p-1.5 bg-white rounded-lg shadow-sm">
+              <CarFront className="w-5 h-5 text-[#71C9CE]" />
+            </div>
+            Digital Receipt
           </h3>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-gray-200 rounded-full transition"
+            className="p-2 hover:bg-white rounded-full transition text-slate-400 hover:text-slate-600"
           >
-            <X className="w-5 h-5 text-gray-500" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-6 bg-gray-100 flex justify-center">
-          <div className="bg-white p-4 w-full shadow-sm border border-gray-200 text-sm font-mono leading-relaxed relative">
+        {/* Content Struk Simulation */}
+        <div className="p-8 bg-slate-50 flex justify-center">
+          <div className="bg-white p-5 w-full shadow-sm border border-slate-200 text-sm font-mono leading-relaxed relative rounded-sm">
+            {/* Zigzag Top */}
             <div className="absolute top-0 left-0 w-full h-1 bg-[linear-gradient(135deg,transparent_5px,#fff_5px),linear-gradient(-135deg,transparent_5px,#fff_5px)] bg-[length:10px_10px] bg-repeat-x -mt-1 transform rotate-180"></div>
 
-            <div className="text-center font-bold mb-4">
-              PARKIRAN CANGGIH
+            <div className="text-center font-bold mb-6 text-slate-800">
+              COACHPRO PARKING
               <br />
-              <span className="font-normal text-xs text-gray-500">
-                Jl. Teknologi No. 1
+              <span className="font-normal text-[10px] text-slate-400 uppercase tracking-widest">
+                Official Receipt
               </span>
             </div>
 
-            <div className="space-y-1 border-b border-dashed border-gray-300 pb-3 mb-3">
+            <div className="space-y-2 border-b-2 border-dashed border-slate-200 pb-4 mb-4 text-xs">
               <div className="flex justify-between">
-                <span>ID Tiket</span>{" "}
-                <span className="font-bold">{data.struk_id}</span>
+                <span className="text-slate-500">Tiket ID</span>{" "}
+                <span className="font-bold text-slate-800">
+                  {data.struk_id}
+                </span>
               </div>
               <div className="flex justify-between">
-                <span>Plat</span>{" "}
-                <span className="font-bold uppercase">{data.plat_nomor}</span>
+                <span className="text-slate-500">Plat No</span>{" "}
+                <span className="font-bold uppercase text-slate-800 bg-yellow-100 px-1 rounded">
+                  {data.plat_nomor}
+                </span>
               </div>
               <div className="flex justify-between">
-                <span>Masuk</span> <span>{data.waktu_masuk}</span>
+                <span className="text-slate-500">Masuk</span>{" "}
+                <span>{data.waktu_masuk}</span>
               </div>
               <div className="flex justify-between">
-                <span>Keluar</span> <span>{data.waktu_keluar || "-"}</span>
+                <span className="text-slate-500">Keluar</span>{" "}
+                <span>{data.waktu_keluar || "-"}</span>
               </div>
               <div className="flex justify-between">
-                <span>Durasi</span> <span>{data.durasi || "-"}</span>
+                <span className="text-slate-500">Durasi</span>{" "}
+                <span>{data.durasi || "-"}</span>
               </div>
             </div>
 
-            <div className="flex justify-between font-bold text-lg">
+            <div className="flex justify-between font-black text-lg text-slate-800">
               <span>TOTAL</span>
               <span>{formatRupiah(data.biaya || data.biaya_total || 0)}</span>
             </div>
 
+            {/* Zigzag Bottom */}
             <div className="absolute bottom-0 left-0 w-full h-1 bg-[linear-gradient(135deg,transparent_5px,#fff_5px),linear-gradient(-135deg,transparent_5px,#fff_5px)] bg-[length:10px_10px] bg-repeat-x -mb-1"></div>
           </div>
         </div>
 
-        <div className="p-4 bg-white border-t border-gray-100 flex gap-3">
-          <Button variant="outline" fullWidth onClick={onClose}>
+        <div className="p-5 bg-white border-t border-slate-100 flex gap-3">
+          <Button
+            variant="secondary"
+            fullWidth
+            onClick={onClose}
+            className="border-slate-200"
+          >
             Tutup
           </Button>
-          <Button fullWidth onClick={onPrint} leftIcon={Printer}>
-            Cetak Struk
+          <Button
+            fullWidth
+            onClick={onPrint}
+            className="bg-[#71C9CE] hover:bg-[#5dbbc0] text-white shadow-lg shadow-[#71C9CE]/20 gap-2"
+          >
+            <Printer className="w-4 h-4" /> Cetak
           </Button>
         </div>
       </div>
@@ -250,25 +276,22 @@ export default function RiwayatPage() {
     currentPage * itemsPerPage,
   );
 
-  // --- HANDLE EXPORT CSV ---
-  // Fungsi ini otomatis export data sesuai apa yang tampil (Filtered Data)
+  // --- EXPORT CSV ---
   const handleExport = () => {
     if (filteredData.length === 0) return;
 
-    // 1. Buat Header CSV
     const headers = [
       "No",
       "ID Tiket",
       "Plat Nomor",
-      "Jenis Kendaraan",
-      "Waktu Masuk",
-      "Waktu Keluar",
+      "Jenis",
+      "Masuk",
+      "Keluar",
       "Status",
-      "Biaya Total",
-      "Area Parkir",
+      "Biaya",
+      "Area",
     ];
 
-    // 2. Map Data ke Format CSV
     const csvRows = filteredData.map((item, index) => {
       const masuk = new Date(item.waktu_masuk).toLocaleString("id-ID");
       const keluar = item.waktu_keluar
@@ -307,24 +330,28 @@ export default function RiwayatPage() {
     switch (status.toLowerCase()) {
       case "parkir":
         return (
-          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700 border border-blue-200">
-            Sedang Parkir
+          <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-[#E3FDFD] text-[#71C9CE] border border-[#A6E3E9] uppercase tracking-wide">
+            Active
           </span>
         );
       case "selesai":
         return (
-          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 border border-green-200">
-            Selesai
+          <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase tracking-wide">
+            Done
           </span>
         );
       case "menunggu_bayar":
         return (
-          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 border border-yellow-200">
-            Menunggu Bayar
+          <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-100 uppercase tracking-wide">
+            Unpaid
           </span>
         );
       default:
-        return <span className="text-gray-500 text-xs">{status}</span>;
+        return (
+          <span className="text-gray-400 text-xs font-bold uppercase">
+            {status}
+          </span>
+        );
     }
   };
 
@@ -340,31 +367,36 @@ export default function RiwayatPage() {
         />
       )}
 
-      {/* HEADER SIMPLE */}
-      <div className="mb-6 relative z-10">
-        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-          Riwayat <span className="text-blue-600">Transaksi</span>
+      {/* HEADER */}
+      <div className="mb-10 relative z-10">
+        <h1 className="text-3xl font-black text-slate-800 tracking-tight">
+          Riwayat <span className="text-[#71C9CE]">Transaksi</span>
         </h1>
-        <p className="text-gray-500 text-sm mt-1">
-          Pantau arus kendaraan dan lihat detail struk.
+        <p className="text-gray-500 text-sm mt-1 font-medium">
+          Arsip data kendaraan masuk dan keluar.
         </p>
       </div>
 
-      {/* === FILTER BAR & EXPORT (DISATUKAN) === */}
-      <div className="bg-white/60 backdrop-blur-xl p-4 rounded-3xl shadow-lg border border-white/50 mb-8 flex flex-col lg:flex-row gap-4 relative z-10">
-        {/* Search Input - Expands */}
+      {/* === FILTER BAR & EXPORT === */}
+      <div
+        className={cn(
+          GLASS_CARD,
+          "p-6 mb-8 flex flex-col lg:flex-row gap-4 relative z-10",
+        )}
+      >
+        {/* Search Input */}
         <div className="flex-1">
           <Input
             placeholder="Cari Plat Nomor..."
             startIcon={Search}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="bg-white/50 h-11"
+            className="bg-white pl-11 h-12"
           />
         </div>
 
-        {/* Status Select - Fixed Width */}
-        <div className="w-full lg:w-56">
+        {/* Status Select */}
+        <div className="w-full lg:w-64">
           <Select
             options={[
               { value: "all", label: "Semua Status" },
@@ -373,18 +405,15 @@ export default function RiwayatPage() {
             ]}
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-white/50 h-11"
+            className="bg-white pl-4 h-12"
           />
         </div>
 
-        {/* Separator Vertical di Desktop */}
-        <div className="hidden lg:block w-px h-10 bg-gray-300/50 mx-2"></div>
-
-        {/* Export Button - Compact & Modern */}
+        {/* Export Button */}
         <Button
           onClick={handleExport}
           disabled={filteredData.length === 0}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20 h-11 px-6 rounded-xl flex items-center gap-2 transition-all whitespace-nowrap"
+          className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/20 h-12 px-6 rounded-2xl flex items-center gap-2 whitespace-nowrap font-bold"
         >
           <FileSpreadsheet className="w-4 h-4" />
           <span>Export CSV</span>
@@ -392,33 +421,35 @@ export default function RiwayatPage() {
       </div>
 
       {/* TABLE */}
-      <div className="bg-white/60 backdrop-blur-xl rounded-3xl shadow-xl border border-white/50 overflow-hidden min-h-[400px] flex flex-col relative z-10">
-        <div className="overflow-x-auto">
+      <div
+        className={cn(GLASS_CARD, "flex flex-col min-h-[500px] relative z-10")}
+      >
+        <div className="overflow-x-auto flex-1">
           <table className="w-full text-sm text-left">
-            <thead className="bg-white/40 text-gray-500 font-semibold border-b border-gray-200/50 uppercase text-xs">
+            <thead className="bg-[#E3FDFD]/50 text-slate-500 font-bold uppercase text-[10px] tracking-wider border-b border-[#A6E3E9]/30">
               <tr>
-                <th className="px-6 py-5">Waktu</th>
+                <th className="px-8 py-5">Waktu</th>
                 <th className="px-6 py-5">Kendaraan</th>
                 <th className="px-6 py-5">Status</th>
-                <th className="px-6 py-5 text-right">Tagihan</th>
-                <th className="px-6 py-5 text-center">Aksi</th>
+                <th className="px-8 py-5 text-right">Tagihan</th>
+                <th className="px-6 py-5 text-center">Struk</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100/50">
               {loading ? (
                 [...Array(5)].map((_, i) => (
-                  <tr key={i} className="animate-pulse">
-                    <td colSpan={5} className="p-4">
-                      <div className="h-8 bg-gray-200/50 rounded"></div>
+                  <tr key={i} className="animate-pulse bg-white/30">
+                    <td colSpan={5} className="p-6">
+                      <div className="h-6 bg-gray-200 rounded w-full"></div>
                     </td>
                   </tr>
                 ))
               ) : currentItems.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-16 text-gray-500">
-                    <div className="flex flex-col items-center">
-                      <Search className="w-10 h-10 text-gray-300 mb-2" />
-                      <p>Data tidak ditemukan</p>
+                  <td colSpan={5} className="text-center py-24 text-gray-400">
+                    <div className="flex flex-col items-center justify-center gap-3 opacity-50">
+                      <Search className="w-10 h-10 text-gray-300" />
+                      <p className="font-bold text-sm">Data tidak ditemukan</p>
                     </div>
                   </td>
                 </tr>
@@ -426,60 +457,60 @@ export default function RiwayatPage() {
                 currentItems.map((row) => (
                   <tr
                     key={row.id_transaksi}
-                    className="hover:bg-blue-50/40 transition-colors"
+                    className="hover:bg-white/60 transition-colors group"
                   >
-                    <td className="px-6 py-4">
-                      <div className="font-bold text-gray-900 flex items-center gap-2">
-                        <Clock className="w-3.5 h-3.5 text-blue-500" />
+                    <td className="px-8 py-5">
+                      <div className="font-bold text-slate-700 flex items-center gap-2 text-sm">
+                        <Clock className="w-3.5 h-3.5 text-[#71C9CE]" />
                         {new Date(row.waktu_masuk).toLocaleTimeString("id-ID", {
                           hour: "2-digit",
                           minute: "2-digit",
                         })}
                       </div>
-                      <div className="text-xs text-gray-500 flex items-center gap-2 mt-1">
-                        <Calendar className="w-3 h-3 text-gray-400" />
+                      <div className="text-[10px] text-slate-400 font-bold flex items-center gap-1.5 mt-1 uppercase tracking-wide">
+                        <Calendar className="w-3 h-3" />
                         {new Date(row.waktu_masuk).toLocaleDateString("id-ID", {
                           day: "numeric",
                           month: "short",
                         })}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-5">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 bg-gray-50 rounded-xl flex items-center justify-center border border-gray-100">
-                          <CarFront className="w-4 h-4 text-gray-500" />
+                        <div className="w-10 h-10 bg-gradient-to-br from-[#71C9CE] to-[#A6E3E9] rounded-xl flex items-center justify-center text-white shadow-md shadow-[#71C9CE]/20">
+                          <CarFront className="w-5 h-5" />
                         </div>
                         <div>
-                          <span className="font-bold block text-gray-900">
+                          <span className="font-black block text-slate-800 text-sm">
                             {row.plat_nomor}
                           </span>
-                          <span className="text-[10px] bg-gray-100 px-1.5 py-0.5 rounded font-bold text-gray-500 uppercase">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">
                             {row.jenis_kendaraan}
                           </span>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">{getStatusBadge(row.status)}</td>
-                    <td className="px-6 py-4 text-right font-bold text-emerald-600">
-                      {row.biaya_total > 0
-                        ? formatRupiah(row.biaya_total)
-                        : "-"}
+                    <td className="px-6 py-5">{getStatusBadge(row.status)}</td>
+                    <td className="px-8 py-5 text-right font-black text-slate-700">
+                      {row.biaya_total > 0 ? (
+                        formatRupiah(row.biaya_total)
+                      ) : (
+                        <span className="text-gray-300">-</span>
+                      )}
                     </td>
-                    <td className="px-6 py-4 text-center">
-                      <Button
-                        variant="ghost"
-                        size="sm"
+                    <td className="px-6 py-5 text-center">
+                      <button
                         onClick={() => openStrukModal(row.id_transaksi)}
                         disabled={isLoadingStrukId === row.id_transaksi}
-                        className="h-9 w-9 p-0 rounded-full hover:bg-blue-100 hover:text-blue-600 transition-all text-gray-500"
+                        className="p-2.5 rounded-xl hover:bg-[#E3FDFD] text-slate-400 hover:text-[#71C9CE] transition-all border border-transparent hover:border-[#A6E3E9]"
                         title="Lihat Struk"
                       >
                         {isLoadingStrukId === row.id_transaksi ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <Loader2 className="w-4 h-4 animate-spin text-[#71C9CE]" />
                         ) : (
                           <Eye className="w-4 h-4" />
                         )}
-                      </Button>
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -488,24 +519,25 @@ export default function RiwayatPage() {
           </table>
         </div>
 
-        <div className="mt-auto border-t border-gray-200/50 p-4 bg-white/40 flex justify-between items-center backdrop-blur-sm">
-          <span className="text-xs text-gray-500">
-            Hal {currentPage} dari {totalPages || 1}
+        {/* Footer Pagination */}
+        <div className="mt-auto border-t border-[#A6E3E9]/30 p-5 bg-gradient-to-r from-[#E3FDFD]/30 to-white/30 flex justify-between items-center">
+          <span className="text-xs font-bold text-slate-400">
+            Page {currentPage} of {totalPages || 1}
           </span>
           <div className="flex gap-2">
             <Button
-              variant="outline"
+              variant="secondary"
               size="sm"
-              className="h-8 w-8 p-0 bg-white/60"
+              className="h-9 w-9 p-0 bg-white"
               onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
               disabled={currentPage === 1}
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
             <Button
-              variant="outline"
+              variant="secondary"
               size="sm"
-              className="h-8 w-8 p-0 bg-white/60"
+              className="h-9 w-9 p-0 bg-white"
               onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
               disabled={currentPage === totalPages}
             >
