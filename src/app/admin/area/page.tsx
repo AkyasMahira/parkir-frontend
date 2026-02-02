@@ -8,11 +8,12 @@ import {
   MapPin,
   Trash2,
   Plus,
-  Maximize,
   AlertCircle,
-  LayoutGrid,
   Info,
   Layers,
+  Pencil,
+  X,
+  AlertTriangle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import api from "@/lib/axios";
@@ -28,16 +29,70 @@ interface AreaParkir {
 const GLASS_STYLE =
   "bg-white/70 backdrop-blur-xl border border-white/40 shadow-xl shadow-blue-900/5";
 
+const GlassModal = ({
+  isOpen,
+  onClose,
+  title,
+  children,
+  maxWidth = "max-w-md",
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  children: React.ReactNode;
+  maxWidth?: string;
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-slate-900/20 backdrop-blur-sm transition-opacity"
+        onClick={onClose}
+      />
+
+      {/* Modal Content */}
+      <div
+        className={cn(
+          "relative bg-white/90 backdrop-blur-2xl border border-white/50 shadow-2xl rounded-[2rem] w-full overflow-hidden animate-in fade-in zoom-in-95 duration-200",
+          maxWidth,
+        )}
+      >
+        <div className="flex justify-between items-center px-2 py-1.5 border-b border-gray-100/50">
+          {/* <h3 className="font-black text-slate-800 text-lg">{title}</h3> */}
+          <button
+            onClick={onClose}
+            className="p-2 bg-slate-100 rounded-full hover:bg-slate-200 text-slate-500 transition-colors"
+          >
+            {/* <X size={18} /> */}
+          </button>
+        </div>
+        <div className="p-8">{children}</div>
+      </div>
+    </div>
+  );
+};
+
 export default function AreaPage() {
   const [areas, setAreas] = useState<AreaParkir[]>([]);
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
 
-  const [form, setForm] = useState({
-    nama_area: "",
-    kapasitas: "",
-  });
+  // --- STATES UNTUK MODAL & EDIT ---
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [selectedArea, setSelectedArea] = useState<AreaParkir | null>(null);
 
+  // State untuk form create/edit
+  const [form, setForm] = useState({ nama_area: "", kapasitas: "" });
+
+  // State loading saat submit/delete
+  const [processing, setProcessing] = useState(false);
+
+  // State Error Message (pengganti alert)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // --- FETCH DATA ---
   const fetchAreas = async () => {
     setLoading(true);
     try {
@@ -55,33 +110,78 @@ export default function AreaPage() {
     fetchAreas();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // --- RESET HANDLER ---
+  const resetState = () => {
+    setForm({ nama_area: "", kapasitas: "" });
+    setSelectedArea(null);
+    setIsEditOpen(false);
+    setIsDeleteOpen(false);
+    setErrorMsg(null);
+    setProcessing(false);
+  };
+
+  // --- CREATE ---
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.nama_area || !form.kapasitas) return;
-    setSubmitting(true);
+
+    setProcessing(true);
+    setErrorMsg(null);
+
     try {
       await api.post("/areas", form);
-      setForm({ nama_area: "", kapasitas: "" });
+      resetState();
       fetchAreas();
     } catch (error: any) {
-      alert("Gagal: " + (error.response?.data?.message || "Error server"));
-    } finally {
-      setSubmitting(false);
+      setErrorMsg(error.response?.data?.message || "Gagal membuat area");
+      setProcessing(false);
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (
-      !confirm(
-        "⚠️ Hapus Area?\nData transaksi terkait mungkin akan terpengaruh.",
-      )
-    )
-      return;
+  // --- EDIT ---
+  const openEditModal = (area: AreaParkir) => {
+    setSelectedArea(area);
+    setForm({
+      nama_area: area.nama_area,
+      kapasitas: area.kapasitas.toString(),
+    });
+    setErrorMsg(null);
+    setIsEditOpen(true);
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedArea) return;
+
+    setProcessing(true);
     try {
-      await api.delete(`/areas/${id}`);
+      await api.put(`/areas/${selectedArea.id_area}`, form);
+      resetState();
       fetchAreas();
-    } catch (error) {
-      alert("Gagal menghapus area.");
+    } catch (error: any) {
+      setErrorMsg(error.response?.data?.message || "Gagal update area");
+      setProcessing(false);
+    }
+  };
+
+  // --- DELETE ---
+  const openDeleteModal = (area: AreaParkir) => {
+    setSelectedArea(area);
+    setErrorMsg(null);
+    setIsDeleteOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!selectedArea) return;
+
+    setProcessing(true);
+    try {
+      await api.delete(`/areas/${selectedArea.id_area}`);
+      resetState();
+      fetchAreas();
+    } catch (error: any) {
+      setErrorMsg("Gagal menghapus area. Pastikan tidak ada transaksi aktif.");
+      setProcessing(false);
     }
   };
 
@@ -113,7 +213,7 @@ export default function AreaPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        {/* --- FORM CARD --- */}
+        {/* --- FORM CARD (CREATE ONLY) --- */}
         <div
           className={cn(
             GLASS_STYLE,
@@ -132,7 +232,16 @@ export default function AreaPage() {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          {errorMsg && !isEditOpen && !isDeleteOpen && (
+            <div className="mb-6 p-4 bg-red-50/80 border border-red-100 rounded-2xl flex gap-3 items-start">
+              <AlertCircle className="text-red-500 w-5 h-5 shrink-0" />
+              <p className="text-xs text-red-600 font-bold leading-relaxed">
+                {errorMsg}
+              </p>
+            </div>
+          )}
+
+          <form onSubmit={handleCreate} className="space-y-6">
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase ml-1">
                 Nama Area
@@ -165,14 +274,13 @@ export default function AreaPage() {
             <div className="p-4 bg-blue-50/50 border border-blue-100 rounded-2xl flex gap-3 items-start mb-4">
               <Info size={18} className="text-blue-600 mt-0.5" />
               <p className="text-[11px] text-blue-700 leading-relaxed font-medium">
-                Sistem akan menghitung persentase okupansi secara otomatis
-                berdasarkan transaksi masuk.
+                Sistem akan menghitung persentase okupansi secara otomatis.
               </p>
             </div>
 
             <Button
               type="submit"
-              isLoading={submitting}
+              isLoading={processing}
               className="w-full bg-slate-900 hover:bg-slate-800 text-white rounded-2xl h-14 font-bold shadow-xl transition-all active:scale-95"
             >
               Simpan Perubahan
@@ -216,7 +324,7 @@ export default function AreaPage() {
                   ))
                 ) : areas.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="py-24 text-center">
+                    <td colSpan={3} className="py-24 text-center">
                       <div className="flex flex-col items-center opacity-30">
                         <AlertCircle size={48} strokeWidth={1} />
                         <p className="mt-4 font-bold">
@@ -285,12 +393,20 @@ export default function AreaPage() {
                         </td>
 
                         <td className="px-8 py-6 text-right">
-                          <button
-                            onClick={() => handleDelete(a.id_area)}
-                            className="p-3 text-slate-300 hover:text-red-600 hover:bg-red-50 rounded-2xl transition-all active:scale-90"
-                          >
-                            <Trash2 size={18} />
-                          </button>
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => openEditModal(a)}
+                              className="p-3 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-2xl transition-all active:scale-90"
+                            >
+                              <Pencil size={18} />
+                            </button>
+                            <button
+                              onClick={() => openDeleteModal(a)}
+                              className="p-3 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-2xl transition-all active:scale-90"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -301,6 +417,114 @@ export default function AreaPage() {
           </div>
         </div>
       </div>
+
+      {/* --- MODAL EDIT --- */}
+      <GlassModal
+        isOpen={isEditOpen}
+        onClose={resetState}
+        title="Edit Area Parkir"
+      >
+        <form onSubmit={handleUpdate} className="space-y-6">
+          {errorMsg && (
+            <div className="p-4 bg-red-50/80 border border-red-100 rounded-2xl flex gap-3 items-start">
+              <AlertTriangle className="text-red-500 w-5 h-5 shrink-0" />
+              <p className="text-xs text-red-600 font-bold leading-relaxed">
+                {errorMsg}
+              </p>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-500 uppercase ml-1">
+              Nama Area
+            </label>
+            <Input
+              value={form.nama_area}
+              onChange={(e) => setForm({ ...form, nama_area: e.target.value })}
+              className="bg-slate-50/50 border-slate-200 focus:bg-white rounded-2xl h-12"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-500 uppercase ml-1">
+              Kapasitas Maksimal
+            </label>
+            <Input
+              type="number"
+              value={form.kapasitas}
+              onChange={(e) => setForm({ ...form, kapasitas: e.target.value })}
+              className="bg-slate-50/50 border-slate-200 focus:bg-white rounded-2xl h-12"
+            />
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={resetState}
+              className="w-1/3 rounded-2xl h-12 border-slate-200"
+            >
+              Batal
+            </Button>
+            <Button
+              type="submit"
+              isLoading={processing}
+              className="w-2/3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl h-12 font-bold shadow-lg shadow-indigo-200"
+            >
+              Update Area
+            </Button>
+          </div>
+        </form>
+      </GlassModal>
+
+      {/* --- MODAL DELETE --- */}
+      <GlassModal
+        isOpen={isDeleteOpen}
+        onClose={resetState}
+        title="Hapus Area?"
+        maxWidth="max-w-sm"
+      >
+        <div className="text-center">
+          <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Trash2 size={28} />
+          </div>
+          <p className="text-slate-600 mb-2">
+            Anda akan menghapus{" "}
+            <span className="font-bold text-slate-900">
+              {selectedArea?.nama_area}
+            </span>
+            .
+          </p>
+          <p className="text-xs text-slate-400 font-medium leading-relaxed mb-6">
+            Tindakan ini tidak dapat dibatalkan. Pastikan tidak ada kendaraan
+            yang sedang parkir di area ini.
+          </p>
+
+          {errorMsg && (
+            <div className="mb-4 p-3 bg-red-50 rounded-xl text-xs text-red-600 font-bold">
+              {errorMsg}
+            </div>
+          )}
+
+          <div className="flex gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={resetState}
+              className="w-1/2 rounded-2xl h-12 border-slate-200"
+            >
+              Batal
+            </Button>
+            <Button
+              onClick={confirmDelete}
+              isLoading={processing}
+              className="w-1/2 bg-red-600 hover:bg-red-700 text-white rounded-2xl h-12 font-bold shadow-lg shadow-red-200"
+            >
+              Ya, Hapus
+            </Button>
+          </div>
+        </div>
+      </GlassModal>
     </DashboardLayout>
   );
 }

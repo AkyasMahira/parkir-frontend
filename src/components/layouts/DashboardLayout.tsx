@@ -6,11 +6,6 @@ import { Sidebar } from "@/components/ui/Sidebar";
 import { Navbar } from "@/components/ui/Navbar";
 import { Loader2 } from "lucide-react";
 
-/* =========================
-   1. GLOBAL BACKGROUND (THE GLASS CANVAS)
-   Ini ditaruh di sini agar efek backgroundnya 
-   konsisten/menyambung di semua halaman.
-   ========================= */
 const BackgroundDecoration = () => (
   <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none bg-slate-50/50">
     {/* Blob Biru (Kiri Atas) */}
@@ -24,9 +19,6 @@ const BackgroundDecoration = () => (
   </div>
 );
 
-/* =========================
-   TYPES & INTERFACES
-   ========================= */
 interface User {
   id: number | string;
   nama_lengkap: string;
@@ -39,9 +31,6 @@ interface DashboardLayoutProps {
   requiredRole?: User["role"];
 }
 
-/* =========================
-   MAIN LAYOUT COMPONENT
-   ========================= */
 export const DashboardLayout = ({
   children,
   requiredRole,
@@ -53,7 +42,6 @@ export const DashboardLayout = ({
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
 
-  // --- AUTH CHECK LOGIC ---
   useEffect(() => {
     const checkAuth = () => {
       try {
@@ -91,7 +79,6 @@ export const DashboardLayout = ({
     checkAuth();
   }, [router, requiredRole, pathname]);
 
-  // --- LOADING STATE ---
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 text-gray-500">
@@ -105,7 +92,6 @@ export const DashboardLayout = ({
     return null;
   }
 
-  // --- RENDER LAYOUT ---
   return (
     <div className="min-h-screen relative font-sans text-gray-900 selection:bg-blue-100 selection:text-blue-900">
       {/* 1. Background Layer (Paling Bawah) */}
@@ -117,11 +103,9 @@ export const DashboardLayout = ({
       {/* 3. Main Wrapper */}
       <div className="flex flex-col min-h-screen">
         {/* Navbar (Sticky Top) */}
-        {/* Navbar component sudah menghandle margin-left (md:ml-72) sendiri di kodenya */}
         <Navbar user={user} />
 
         {/* Content Area */}
-        {/* Perlu margin-left (md:ml-72) agar tidak tertutup Sidebar di Desktop */}
         <main className="flex-1 transition-all duration-300 md:ml-72">
           <div className="p-4 sm:p-6 lg:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {children}
