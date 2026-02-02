@@ -11,9 +11,15 @@ import {
   PlusCircle,
   Settings,
   TrendingUp,
+  Sparkles,
+  LayoutDashboard,
 } from "lucide-react";
 import { formatRupiah, cn } from "@/lib/utils";
 import api from "@/lib/axios";
+
+// Variabel styling glassmorphism yang konsisten
+const GLASS_STYLE =
+  "bg-white/70 backdrop-blur-xl border border-white/40 shadow-xl shadow-blue-900/5";
 
 // --- SUB-COMPONENT: STAT CARD ---
 interface StatCardProps {
@@ -22,7 +28,6 @@ interface StatCardProps {
   icon: React.ElementType;
   color: "blue" | "green" | "purple";
   isLoading: boolean;
-  trend?: string; // Opsional: misal "+5% dari kemarin"
 }
 
 const StatCard = ({
@@ -31,38 +36,55 @@ const StatCard = ({
   icon: Icon,
   color,
   isLoading,
-  trend,
 }: StatCardProps) => {
-  const styles = {
-    blue: "bg-blue-50 text-blue-600 border-blue-100",
-    green: "bg-emerald-50 text-emerald-600 border-emerald-100",
-    purple: "bg-purple-50 text-purple-600 border-purple-100",
+  const iconStyles = {
+    blue: "bg-blue-500/10 text-blue-600 border-blue-200/50",
+    green: "bg-emerald-500/10 text-emerald-600 border-emerald-200/50",
+    purple: "bg-purple-500/10 text-purple-600 border-purple-200/50",
   };
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200">
+    <div
+      className={cn(
+        GLASS_STYLE,
+        "p-6 rounded-3xl transition-all duration-300 hover:-translate-y-1 hover:bg-white/80",
+      )}
+    >
       <div className="flex justify-between items-start">
-        <div>
-          <p className="text-sm font-medium text-gray-500 mb-1">{label}</p>
+        <div className="space-y-1">
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+            {label}
+          </p>
           {isLoading ? (
-            <div className="h-8 w-32 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-9 w-32 bg-slate-200/50 rounded-lg animate-pulse"></div>
           ) : (
-            <h3 className="text-3xl font-bold text-gray-900 tracking-tight">
+            <h3 className="text-3xl font-black text-slate-800 tracking-tight italic">
               {value}
             </h3>
           )}
         </div>
-        <div className={cn("p-3 rounded-xl border", styles[color])}>
+        <div
+          className={cn(
+            "p-4 rounded-2xl border-2 shadow-inner",
+            iconStyles[color],
+          )}
+        >
           <Icon className="w-6 h-6" />
         </div>
       </div>
-
-      {/* Optional Trend Indicator */}
       {!isLoading && (
-        <div className="mt-4 flex items-center gap-1 text-xs font-medium text-gray-400">
-          <TrendingUp className="w-3 h-3 text-green-500" />
-          <span className="text-green-600">Update Realtime</span>
-          <span>• Data Keseluruhan</span>
+        <div className="mt-4 flex items-center gap-2 text-[10px] font-bold text-slate-400">
+          <div className="flex -space-x-1">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="w-4 h-4 rounded-full bg-slate-200 border border-white"
+              />
+            ))}
+          </div>
+          <span className="uppercase tracking-tighter">
+            Live Updates Enabled
+          </span>
         </div>
       )}
     </div>
@@ -80,66 +102,74 @@ export default function AdminDashboard() {
   const [greeting, setGreeting] = useState("");
 
   useEffect(() => {
-    // 1. Set Greeting Time
     const hour = new Date().getHours();
     if (hour < 12) setGreeting("Selamat Pagi");
     else if (hour < 18) setGreeting("Selamat Siang");
     else setGreeting("Selamat Malam");
 
-    // 2. Fetch Data
     const fetchData = async () => {
+      setLoading(true);
       try {
-        const [resUser, resParkir] = await Promise.all([
-          api.get("/users"),
-          api.get("/parking?limit=10000"), // Pastikan ambil banyak data untuk kalkulasi total
-        ]);
-
-        // Handle array structure data
-        const parkingData = Array.isArray(resParkir.data.data)
-          ? resParkir.data.data
-          : resParkir.data;
-        const usersData = Array.isArray(resUser.data.data)
-          ? resUser.data.data
-          : resUser.data;
-
-        // Hitung Total Pendapatan (Client Side Calculation)
-        // Note: Idealnya ini dilakukan di backend (SELECT SUM(biaya) FROM transactions) agar ringan.
-        const totalDuit = parkingData.reduce(
-          (sum: number, item: any) => sum + (Number(item.biaya_total) || 0),
-          0
-        );
+        // Memanggil endpoint tunggal yang kita buat di DashboardController
+        const res = await api.get("/admin/dashboard-stats");
+        const result = res.data.data;
 
         setStats({
-          users: usersData.length,
-          pendapatan: totalDuit,
-          totalTransaksi: parkingData.length,
+          pendapatan: result.pendapatan || 0,
+          totalTransaksi: result.total_transaksi || 0,
+          users: result.total_users || 0,
         });
-      } catch (error) {
-        console.error("Gagal load stats", error);
+      } catch (error: any) {
+        // Jika masih 404, berarti route di backend belum didaftarkan
+        console.error(
+          "Gagal load stats:",
+          error.response?.status === 404
+            ? "Endpoint /admin/dashboard-stats tidak ditemukan!"
+            : error.message,
+        );
       } finally {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
   return (
     <DashboardLayout requiredRole="admin">
-      {/* HEADER SECTION */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">
-          {greeting}, Admin! 👋
-        </h1>
-        <p className="text-gray-500 mt-1">
-          Berikut adalah ringkasan kinerja sistem parkir hari ini.
-        </p>
+      {/* Dynamic Background Elements */}
+      <div className="fixed inset-0 -z-10 pointer-events-none">
+        <div className="absolute top-[20%] left-[10%] w-72 h-72 bg-blue-400/20 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[10%] right-[10%] w-96 h-96 bg-purple-400/20 rounded-full blur-[120px]" />
+      </div>
+
+      {/* HEADER */}
+      <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <Sparkles className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+            <span className="text-sm font-bold text-blue-600 uppercase tracking-widest">
+              Dashboard Overview
+            </span>
+          </div>
+          <h1 className="text-4xl font-black text-slate-800 tracking-tight">
+            {greeting},{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 font-black">
+              Admin!
+            </span>
+          </h1>
+        </div>
+        <div className="flex items-center gap-2 px-4 py-2 bg-white/50 backdrop-blur-md border border-white/60 rounded-2xl self-start">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-ping" />
+          <span className="text-xs font-bold text-slate-600 uppercase tracking-tighter">
+            System Status: Optimal
+          </span>
+        </div>
       </div>
 
       {/* STATS GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
         <StatCard
-          label="Total Pendapatan"
+          label="Pendapatan"
           value={formatRupiah(stats.pendapatan)}
           icon={Wallet}
           color="green"
@@ -147,14 +177,14 @@ export default function AdminDashboard() {
         />
         <StatCard
           label="Total Transaksi"
-          value={`${stats.totalTransaksi} Kendaraan`}
+          value={stats.totalTransaksi}
           icon={Activity}
           color="blue"
           isLoading={loading}
         />
         <StatCard
-          label="Total Pengguna"
-          value={`${stats.users} User`}
+          label="User Terdaftar"
+          value={stats.users}
           icon={Users}
           color="purple"
           isLoading={loading}
@@ -163,56 +193,58 @@ export default function AdminDashboard() {
 
       {/* QUICK ACTIONS SECTION */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Action Card: User Management */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
-              <Users className="w-5 h-5" />
+        {/* User Card */}
+        <div className={cn(GLASS_STYLE, "p-8 rounded-[2rem] group")}>
+          <div className="flex items-center gap-4 mb-6">
+            <div className="p-3 bg-indigo-600 rounded-2xl text-white shadow-lg shadow-indigo-200">
+              <Users className="w-6 h-6" />
             </div>
-            <h3 className="font-bold text-gray-800">Manajemen User</h3>
+            <h3 className="text-xl font-black text-slate-800">
+              Manajemen User
+            </h3>
           </div>
-          <p className="text-sm text-gray-500 mb-6 leading-relaxed">
-            Kelola akun petugas parkir, admin lain, atau member. Anda dapat
-            menambah, mengedit, atau menonaktifkan akun.
+          <p className="text-slate-500 mb-8 leading-relaxed font-medium">
+            Atur aksesibilitas tim Anda. Tambahkan petugas parkir baru atau edit
+            status keanggotaan dalam satu panel kontrol.
           </p>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-4">
             <Link href="/admin/users/create" className="flex-1">
-              <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm">
-                <PlusCircle className="w-4 h-4" />
-                Tambah User
+              <button className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-slate-900 text-white rounded-2xl text-sm font-bold hover:bg-slate-800 transition-all active:scale-95 shadow-xl">
+                <PlusCircle className="w-5 h-5" />
+                User Baru
               </button>
             </Link>
             <Link href="/admin/users" className="flex-1">
-              <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
-                Lihat Semua
+              <button className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-white/50 text-slate-700 border border-slate-200 rounded-2xl text-sm font-bold hover:bg-white transition-all">
+                Direktori
               </button>
             </Link>
           </div>
         </div>
 
-        {/* Action Card: System Config */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-gray-100 rounded-lg text-gray-600">
-              <Settings className="w-5 h-5" />
+        {/* Config Card */}
+        <div className={cn(GLASS_STYLE, "p-8 rounded-[2rem] group")}>
+          <div className="flex items-center gap-4 mb-6">
+            <div className="p-3 bg-slate-800 rounded-2xl text-white shadow-lg shadow-slate-200">
+              <Settings className="w-6 h-6" />
             </div>
-            <h3 className="font-bold text-gray-800">Konfigurasi Sistem</h3>
+            <h3 className="text-xl font-black text-slate-800">Konfigurasi</h3>
           </div>
-          <p className="text-sm text-gray-500 mb-6 leading-relaxed">
-            Atur tarif parkir per jam untuk setiap jenis kendaraan dan kelola
-            kapasitas area parkir (lantai/blok).
+          <p className="text-slate-500 mb-8 leading-relaxed font-medium">
+            Kustomisasi tarif dasar dan alokasi ruang parkir. Pastikan kapasitas
+            area sesuai dengan kebutuhan operasional.
           </p>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-4">
             <Link href="/admin/tarif" className="flex-1">
-              <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors group">
+              <button className="w-full group/btn flex items-center justify-center gap-2 px-6 py-4 bg-white/50 border-2 border-slate-100 text-slate-800 rounded-2xl text-sm font-bold hover:border-blue-200 transition-all">
                 Atur Tarif
-                <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all" />
+                <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
               </button>
             </Link>
             <Link href="/admin/area" className="flex-1">
-              <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors group">
+              <button className="w-full group/btn flex items-center justify-center gap-2 px-6 py-4 bg-white/50 border-2 border-slate-100 text-slate-800 rounded-2xl text-sm font-bold hover:border-blue-200 transition-all">
                 Kelola Area
-                <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all" />
+                <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
               </button>
             </Link>
           </div>

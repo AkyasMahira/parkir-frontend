@@ -2,448 +2,304 @@
 
 import { useEffect, useState } from "react";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select";
-import {
-  Car,
-  Bike,
-  Truck,
-  History,
-  PlusCircle,
-  Trash2,
-  AlertCircle,
-} from "lucide-react";
 import { formatRupiah, cn } from "@/lib/utils";
 import api from "@/lib/axios";
+import {
+  TrendingUp,
+  DollarSign,
+  Car,
+  CalendarDays,
+  Wallet,
+  ArrowUpRight,
+  Download,
+  MapPin,
+  Bike,
+  LayoutGrid,
+} from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
-// --- TYPES ---
-interface Kendaraan {
-  id_kendaraan?: number; // Opsional biar gak error kalau null
-  plat_nomor: string;
-  jenis_kendaraan: "motor" | "mobil" | "truk";
-  warna: string;
-  merk: string;
-  pemilik: string;
+// --- INTERFACES BARU ---
+interface AreaStat {
+  nama_area: string;
+  kapasitas: number;
+  terisi: number;
+  persentase: number;
 }
 
-interface HistoryItem {
-  id_transaksi?: number; // Opsional
-  waktu_masuk: string;
-  waktu_keluar: string | null;
-  plat_nomor: string;
-  durasi_jam: number;
-  biaya_total: number;
-  area?: { nama_area: string };
-  status: string;
+interface Stats {
+  hari_ini: { total: number; pendapatan: number };
+  bulan_ini: { total: number; pendapatan: number };
+  kendaraan_parkir: number;
+  area_stats: AreaStat[]; // Array Area
+  jenis_stats: { mobil: number; motor: number }; // Breakdown Jenis
 }
 
-export default function MemberDashboard() {
-  const [activeTab, setActiveTab] = useState<"kendaraan" | "history">(
-    "kendaraan"
+// --- COMPONENT: STAT CARD ---
+const StatCard = ({
+  title,
+  value,
+  subtitle,
+  icon: Icon,
+  variant = "default",
+  delay = 0,
+}: any) => {
+  const isHighlight = variant === "highlight";
+  return (
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-3xl p-6 shadow-xl transition-all duration-500 hover:-translate-y-1",
+        isHighlight
+          ? "bg-gradient-to-br from-blue-600 to-indigo-700 text-white"
+          : "bg-white/60 backdrop-blur-xl border border-white/50 text-gray-800",
+      )}
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      {isHighlight && (
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl -mt-10 -mr-10"></div>
+      )}
+      <div className="flex justify-between items-start relative z-10">
+        <div>
+          <p
+            className={cn(
+              "text-sm font-medium mb-1",
+              isHighlight ? "text-blue-100" : "text-gray-500",
+            )}
+          >
+            {title}
+          </p>
+          <h3 className="text-3xl font-extrabold tracking-tight mb-2">
+            {value}
+          </h3>
+          <div
+            className={cn(
+              "flex items-center gap-1 text-xs",
+              isHighlight ? "text-blue-200" : "text-gray-400",
+            )}
+          >
+            {variant === "highlight" && <ArrowUpRight className="w-3 h-3" />}
+            <span>{subtitle}</span>
+          </div>
+        </div>
+        <div
+          className={cn(
+            "p-3 rounded-2xl shadow-sm",
+            isHighlight ? "bg-white/20 text-white" : "bg-white text-blue-600",
+          )}
+        >
+          <Icon className="w-6 h-6" />
+        </div>
+      </div>
+    </div>
   );
-  const [dataList, setDataList] = useState<any[]>([]);
-  const [loadingData, setLoadingData] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+};
 
-  // State Form Input
-  const [form, setForm] = useState({
-    plat_nomor: "",
-    jenis_kendaraan: "motor",
-    warna: "",
-    pemilik: "",
-    merk: "",
-  });
+// --- COMPONENT: AREA PROGRESS CARD ---
+const AreaProgress = ({ area }: { area: AreaStat }) => {
+  // Tentukan warna berdasarkan kepadatan
+  let color = "bg-blue-500";
+  if (area.persentase > 80) color = "bg-red-500";
+  else if (area.persentase > 50) color = "bg-orange-500";
 
-  // --- FETCH DATA ---
-  const fetchData = async () => {
-    setLoadingData(true);
-    try {
-      const endpoint =
-        activeTab === "kendaraan" ? "/member/kendaraan" : "/member/history";
-      const res = await api.get(endpoint);
+  return (
+    <div className="mb-4 last:mb-0">
+      <div className="flex justify-between items-end mb-2">
+        <div>
+          <span className="text-sm font-bold text-gray-700 block">
+            {area.nama_area}
+          </span>
+          <span className="text-xs text-gray-400">
+            Kapasitas: {area.kapasitas} Slot
+          </span>
+        </div>
+        <div className="text-right">
+          <span className="text-lg font-bold text-gray-800">{area.terisi}</span>
+          <span className="text-xs text-gray-500"> / {area.kapasitas}</span>
+        </div>
+      </div>
+      <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+        <div
+          className={cn(
+            "h-2.5 rounded-full transition-all duration-1000",
+            color,
+          )}
+          style={{ width: `${area.persentase}%` }}
+        ></div>
+      </div>
+    </div>
+  );
+};
 
-      // Safety check: Pastikan data selalu array meskipun API return null/object
-      const rawData = Array.isArray(res.data.data)
-        ? res.data.data
-        : Array.isArray(res.data)
-        ? res.data
-        : [];
-
-      setDataList(rawData);
-    } catch (err) {
-      console.error("Gagal load data", err);
-      setDataList([]); // Reset ke array kosong jika error
-    } finally {
-      setLoadingData(false);
-    }
-  };
+export default function OwnerDashboard() {
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [currentDate, setCurrentDate] = useState("");
 
   useEffect(() => {
-    fetchData();
-  }, [activeTab]);
+    const dateOptions: Intl.DateTimeFormatOptions = {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    };
+    setCurrentDate(new Date().toLocaleDateString("id-ID", dateOptions));
 
-  // --- SUBMIT KENDARAAN ---
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      await api.post("/member/kendaraan", form);
-      // Reset Form
-      setForm({
-        plat_nomor: "",
-        jenis_kendaraan: "motor",
-        warna: "",
-        pemilik: "",
-        merk: "",
-      });
-      fetchData();
-      alert("✅ Kendaraan berhasil disimpan!");
-    } catch (err: any) {
-      alert(
-        "❌ Gagal: " + (err.response?.data?.message || "Terjadi kesalahan")
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    const fetchStats = async () => {
+      try {
+        const res = await api.get("/owner/dashboard");
+        setStats(res.data.data);
+      } catch (err) {
+        console.error("Gagal load dashboard", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
 
-  // --- HAPUS KENDARAAN ---
-  const handleDelete = async (id?: number) => {
-    if (!id) return; // Cegah hapus jika ID null
-    if (!confirm("Apakah Anda yakin ingin menghapus data kendaraan ini?"))
-      return;
-    try {
-      await api.delete(`/member/kendaraan/${id}`);
-      fetchData();
-    } catch (err) {
-      alert("Gagal menghapus data.");
-    }
-  };
-
-  // --- HELPER UI ---
-  const getVehicleIcon = (type: string) => {
-    switch (type?.toLowerCase()) {
-      case "motor":
-        return <Bike className="w-6 h-6" />;
-      case "truk":
-        return <Truck className="w-6 h-6" />;
-      default:
-        return <Car className="w-6 h-6" />;
-    }
-  };
+  if (loading) {
+    return (
+      <DashboardLayout requiredRole="owner">
+        <div className="h-screen flex items-center justify-center text-gray-400">
+          Memuat Data...
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout requiredRole="owner">
       {/* HEADER */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard Member</h1>
-        <p className="text-gray-500 mt-1">
-          Kelola data kendaraan dan pantau riwayat parkir Anda di sini.
-        </p>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8 relative z-10">
+        <div>
+          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+            Dashboard{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+              Owner
+            </span>
+          </h1>
+          <p className="text-gray-500 mt-1 flex items-center gap-2 font-medium">
+            <CalendarDays className="w-4 h-4 text-blue-500" />
+            {currentDate}
+          </p>
+        </div>
       </div>
 
-      {/* --- MENU TAB --- */}
-      <div className="flex items-center gap-2 mb-8 bg-gray-100/50 p-1 rounded-xl w-fit border border-gray-200">
-        <button
-          onClick={() => setActiveTab("kendaraan")}
-          className={cn(
-            "flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
-            activeTab === "kendaraan"
-              ? "bg-white text-blue-600 shadow-sm ring-1 ring-gray-200"
-              : "text-gray-500 hover:text-gray-900 hover:bg-gray-200/50"
-          )}
-        >
-          <Car className="w-4 h-4" />
-          Kendaraan Saya
-        </button>
-        <button
-          onClick={() => setActiveTab("history")}
-          className={cn(
-            "flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
-            activeTab === "history"
-              ? "bg-white text-blue-600 shadow-sm ring-1 ring-gray-200"
-              : "text-gray-500 hover:text-gray-900 hover:bg-gray-200/50"
-          )}
-        >
-          <History className="w-4 h-4" />
-          Riwayat Parkir
-        </button>
+      {/* 1. KEY METRICS (UANG) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 relative z-10">
+        <StatCard
+          title="Pendapatan Bulan Ini"
+          value={formatRupiah(stats?.bulan_ini?.pendapatan || 0)}
+          subtitle={`${stats?.bulan_ini?.total || 0} Total Transaksi`}
+          icon={Wallet}
+          variant="highlight"
+        />
+        <StatCard
+          title="Pendapatan Hari Ini"
+          value={formatRupiah(stats?.hari_ini?.pendapatan || 0)}
+          subtitle={`${stats?.hari_ini?.total || 0} Transaksi Selesai`}
+          icon={DollarSign}
+        />
+        <StatCard
+          title="Total Kendaraan Aktif"
+          value={stats?.kendaraan_parkir || 0}
+          subtitle="Sedang menempati slot"
+          icon={Car}
+        />
       </div>
 
-      {/* --- KONTEN TAB: KENDARAAN --- */}
-      {activeTab === "kendaraan" && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* KOLOM KIRI: FORM (4 cols) */}
-          <div className="lg:col-span-4 bg-white p-6 rounded-xl shadow-sm border border-gray-200 sticky top-24">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
+        {/* 2. LIVE AREA MONITORING (KAPASITAS PER LANTAI) */}
+        <div className="lg:col-span-2">
+          <div className="bg-white/60 backdrop-blur-xl rounded-3xl p-6 border border-white/50 shadow-lg h-full">
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
-                <PlusCircle className="w-5 h-5" />
+              <div className="p-2 bg-blue-100 rounded-xl text-blue-600">
+                <MapPin className="w-5 h-5" />
               </div>
-              <h3 className="font-bold text-gray-800">Registrasi Kendaraan</h3>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <Input
-                label="Plat Nomor"
-                placeholder="B 1234 XYZ"
-                required
-                value={form.plat_nomor}
-                onChange={(e) =>
-                  setForm({ ...form, plat_nomor: e.target.value.toUpperCase() })
-                }
-                className="uppercase font-medium"
-                helperText="Contoh: B 1234 XYZ"
-              />
-
-              <div className="grid grid-cols-2 gap-4">
-                <Select
-                  label="Jenis"
-                  value={form.jenis_kendaraan}
-                  onChange={(e) =>
-                    setForm({ ...form, jenis_kendaraan: e.target.value as any })
-                  }
-                  options={[
-                    { value: "motor", label: "Motor" },
-                    { value: "mobil", label: "Mobil" },
-                    { value: "truk", label: "Truk/Bus" },
-                  ]}
-                />
-                <Input
-                  label="Warna"
-                  placeholder="Hitam"
-                  required
-                  value={form.warna}
-                  onChange={(e) => setForm({ ...form, warna: e.target.value })}
-                />
-              </div>
-
-              <Input
-                label="Merk / Tipe"
-                placeholder="Honda Jazz RS"
-                value={form.merk}
-                onChange={(e) => setForm({ ...form, merk: e.target.value })}
-              />
-
-              <Input
-                label="Pemilik (STNK)"
-                placeholder="Nama sesuai STNK"
-                required
-                value={form.pemilik}
-                onChange={(e) => setForm({ ...form, pemilik: e.target.value })}
-              />
-
-              <div className="pt-2">
-                <Button type="submit" isLoading={isSubmitting} fullWidth>
-                  Simpan Kendaraan
-                </Button>
-              </div>
-            </form>
-          </div>
-
-          {/* KOLOM KANAN: LIST (8 cols) */}
-          <div className="lg:col-span-8 space-y-4">
-            {loadingData ? (
-              [...Array(3)].map((_, i) => (
-                <div
-                  key={`skel-${i}`}
-                  className="h-24 bg-gray-100 rounded-xl animate-pulse"
-                ></div>
-              ))
-            ) : dataList.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 bg-white rounded-xl border border-dashed border-gray-300 text-center">
-                <div className="p-4 bg-gray-50 rounded-full mb-4">
-                  <Car className="w-8 h-8 text-gray-400" />
-                </div>
-                <h3 className="text-lg font-medium text-gray-900">
-                  Belum ada kendaraan
+              <div>
+                <h3 className="font-bold text-gray-800 text-lg">
+                  Kepadatan Area Parkir
                 </h3>
-                <p className="text-sm text-gray-500 max-w-xs mt-1">
-                  Tambahkan kendaraan Anda agar sistem mengenali plat nomor Anda
-                  secara otomatis.
+                <p className="text-xs text-gray-500">
+                  Monitoring kapasitas per lokasi secara realtime
                 </p>
               </div>
-            ) : (
-              // FIX: Menambahkan parameter index (i) dan menggunakannya di key
-              (dataList as Kendaraan[]).map((k, i) => (
-                <div
-                  key={`${k.id_kendaraan || "temp"}-${i}`}
-                  className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:border-blue-300 transition-all duration-200"
-                >
-                  <div className="flex items-start gap-4">
-                    <div
-                      className={cn(
-                        "h-12 w-12 rounded-xl flex items-center justify-center text-2xl shrink-0",
-                        k.jenis_kendaraan === "motor"
-                          ? "bg-orange-50 text-orange-600"
-                          : "bg-blue-50 text-blue-600"
-                      )}
-                    >
-                      {getVehicleIcon(k.jenis_kendaraan)}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-bold text-lg text-gray-900 tracking-tight">
-                          {k.plat_nomor}
-                        </h4>
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-gray-100 text-gray-600 border border-gray-200">
-                          {k.jenis_kendaraan}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-600 mt-0.5">
-                        {k.merk} <span className="text-gray-300">•</span>{" "}
-                        {k.warna}
-                      </p>
-                      <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                        milik {k.pemilik}
-                      </p>
-                    </div>
+            </div>
+
+            <div className="space-y-6">
+              {stats?.area_stats.map((area, idx) => (
+                <AreaProgress key={idx} area={area} />
+              ))}
+              {stats?.area_stats.length === 0 && (
+                <p className="text-gray-400 text-sm">Belum ada data area.</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* 3. VEHICLE DISTRIBUTION (MOTOR VS MOBIL) */}
+        <div className="lg:col-span-1">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-6 text-white shadow-xl h-full relative overflow-hidden">
+            {/* Background Decoration */}
+            <div className="absolute top-0 right-0 w-40 h-40 bg-white opacity-5 rounded-full blur-3xl -mr-10 -mt-10"></div>
+
+            <div className="flex items-center gap-3 mb-8 relative z-10">
+              <div className="p-2 bg-white/10 rounded-xl backdrop-blur-sm">
+                <LayoutGrid className="w-5 h-5 text-emerald-400" />
+              </div>
+              <h3 className="font-bold text-lg">Komposisi Kendaraan</h3>
+            </div>
+
+            <div className="space-y-6 relative z-10">
+              {/* Item Mobil */}
+              <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10">
+                <div className="flex items-center gap-3">
+                  <div className="bg-blue-500/20 p-2 rounded-lg text-blue-400">
+                    <Car className="w-6 h-6" />
                   </div>
-
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    // Pastikan ID ada sebelum memanggil handleDelete
-                    onClick={() =>
-                      k.id_kendaraan && handleDelete(k.id_kendaraan)
-                    }
-                    disabled={!k.id_kendaraan}
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                    leftIcon={Trash2}
-                  >
-                    Hapus
-                  </Button>
+                  <div>
+                    <p className="text-sm text-gray-400">Mobil</p>
+                    <p className="font-bold text-xl">
+                      {stats?.jenis_stats.mobil || 0}
+                    </p>
+                  </div>
                 </div>
-              ))
-            )}
+                <div className="text-right">
+                  <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-1 rounded">
+                    Masuk Hari Ini
+                  </span>
+                </div>
+              </div>
+
+              {/* Item Motor */}
+              <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10">
+                <div className="flex items-center gap-3">
+                  <div className="bg-orange-500/20 p-2 rounded-lg text-orange-400">
+                    <Bike className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400">Motor</p>
+                    <p className="font-bold text-xl">
+                      {stats?.jenis_stats.motor || 0}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="text-xs bg-orange-500/20 text-orange-300 px-2 py-1 rounded">
+                    Masuk Hari Ini
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 pt-6 border-t border-white/10 relative z-10">
+              <div className="flex items-center gap-2 text-sm text-gray-400">
+                <TrendingUp className="w-4 h-4 text-emerald-400" />
+                <span>Tren kunjungan motor meningkat 15%</span>
+              </div>
+            </div>
           </div>
         </div>
-      )}
-
-      {/* --- KONTEN TAB: HISTORY --- */}
-      {activeTab === "history" && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden min-h-[400px]">
-          <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-            <div>
-              <h3 className="font-bold text-gray-800">Riwayat Aktivitas</h3>
-              <p className="text-xs text-gray-500 mt-0.5">
-                Menampilkan semua transaksi parkir
-              </p>
-            </div>
-            <div className="text-xs font-medium px-3 py-1 bg-white border border-gray-200 rounded-lg text-gray-600">
-              Total: {dataList.length} Transaksi
-            </div>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-gray-50 text-gray-500 font-medium border-b border-gray-100">
-                <tr>
-                  <th className="px-6 py-4">Waktu Masuk</th>
-                  <th className="px-6 py-4">Kendaraan</th>
-                  <th className="px-6 py-4">Lokasi</th>
-                  <th className="px-6 py-4">Durasi & Status</th>
-                  <th className="px-6 py-4 text-right">Biaya</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {loadingData ? (
-                  [...Array(3)].map((_, i) => (
-                    <tr key={`h-skel-${i}`} className="animate-pulse">
-                      <td className="px-6 py-4">
-                        <div className="h-4 bg-gray-200 rounded w-24"></div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="h-4 bg-gray-200 rounded w-20"></div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="h-4 bg-gray-200 rounded w-16"></div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="h-4 bg-gray-200 rounded w-24"></div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="h-4 bg-gray-200 rounded w-12 ml-auto"></div>
-                      </td>
-                    </tr>
-                  ))
-                ) : dataList.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="text-center py-16 text-gray-400">
-                      <div className="flex flex-col items-center gap-2">
-                        <AlertCircle className="w-8 h-8 text-gray-300" />
-                        <p>Belum ada riwayat parkir.</p>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  // FIX: Menambahkan parameter index (i) dan menggunakannya di key
-                  (dataList as HistoryItem[]).map((h, i) => (
-                    <tr
-                      key={`${h.id_transaksi || "h"}-${i}`}
-                      className="hover:bg-gray-50/50 transition-colors"
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col">
-                          <span className="font-medium text-gray-900">
-                            {new Date(h.waktu_masuk).toLocaleDateString(
-                              "id-ID",
-                              {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                              }
-                            )}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            {new Date(h.waktu_masuk).toLocaleTimeString(
-                              "id-ID",
-                              { hour: "2-digit", minute: "2-digit" }
-                            )}{" "}
-                            WIB
-                          </span>
-                        </div>
-                      </td>
-
-                      <td className="px-6 py-4">
-                        <span className="font-bold font-mono text-gray-800 bg-gray-100 px-2 py-1 rounded border border-gray-200">
-                          {h.plat_nomor}
-                        </span>
-                      </td>
-
-                      <td className="px-6 py-4 text-gray-600">
-                        {h.area?.nama_area || "Area Umum"}
-                      </td>
-
-                      <td className="px-6 py-4">
-                        {h.waktu_keluar ? (
-                          <div className="flex flex-col">
-                            <span className="text-gray-900 font-medium">
-                              {h.durasi_jam} Jam
-                            </span>
-                            <span className="text-[10px] text-green-600 bg-green-50 px-1.5 py-0.5 rounded w-fit mt-1 border border-green-100">
-                              SELESAI
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="inline-flex items-center gap-1.5 text-blue-600 font-bold text-xs bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100 animate-pulse">
-                            <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-                            SEDANG PARKIR
-                          </span>
-                        )}
-                      </td>
-
-                      <td className="px-6 py-4 text-right font-bold text-gray-900">
-                        {h.biaya_total > 0 ? formatRupiah(h.biaya_total) : "-"}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      </div>
     </DashboardLayout>
   );
 }

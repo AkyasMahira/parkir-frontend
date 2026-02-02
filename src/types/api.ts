@@ -22,10 +22,4 @@ export interface Transaksi {
   status: 'masuk' | 'keluar';
   area: AreaParkir;
   user?: any;
-  // Tambahkan ini 👇
-  kendaraan?: {
-    pemilik: string;
-    merk: string;
-    warna: string;
-  } | null;
 }

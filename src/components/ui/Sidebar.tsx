@@ -14,6 +14,7 @@ import {
   LogOut,
   Menu,
   X,
+  ChevronRight,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -23,9 +24,8 @@ type Role = "admin" | "petugas" | "owner";
 interface MenuItem {
   label: string;
   href: string;
-  icon: React.ElementType; 
+  icon: React.ElementType;
 }
-
 
 const ROLE_MENUS: Record<Role, MenuItem[]> = {
   admin: [
@@ -41,10 +41,12 @@ const ROLE_MENUS: Record<Role, MenuItem[]> = {
     { label: "Riwayat Transaksi", href: "/petugas/riwayat", icon: History },
   ],
   owner: [
-    
+    { label: "Dashboard", href: "/owner/dashboard", icon: BarChart3 },
+    { label: "Laporan Pendapatan", href: "/owner/laporan", icon: Wallet },
   ],
 };
 
+// Komponen Link Menu Modern
 const SidebarLink = ({
   item,
   isActive,
@@ -55,19 +57,26 @@ const SidebarLink = ({
   <Link
     href={item.href}
     className={cn(
-      "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group",
+      "group relative flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300",
       isActive
-        ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
-        : "text-gray-600 hover:bg-gray-100 hover:text-blue-600"
+        ? "text-white shadow-lg shadow-blue-500/25"
+        : "text-gray-600 hover:bg-white/50 hover:text-blue-600",
     )}
   >
+    {/* Background Gradient untuk Active State */}
+    {isActive && (
+      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 -z-10" />
+    )}
+
     <item.icon
       className={cn(
-        "w-5 h-5 transition-colors",
-        isActive ? "text-white" : "text-gray-400 group-hover:text-blue-600"
+        "w-5 h-5 transition-transform duration-300 group-hover:scale-110",
+        isActive ? "text-white" : "text-gray-400 group-hover:text-blue-600",
       )}
     />
-    <span>{item.label}</span>
+    <span className="flex-1">{item.label}</span>
+
+    {isActive && <ChevronRight className="w-4 h-4 text-white/80" />}
   </Link>
 );
 
@@ -82,53 +91,54 @@ export const Sidebar = ({ role }: SidebarProps) => {
 
   return (
     <>
-      {/* Mobile Trigger Button (Hanya muncul di layar kecil) */}
+      {/* Mobile Trigger (Floating Button) */}
       <button
         onClick={() => setIsMobileOpen(true)}
-        className="fixed top-4 left-4 z-40 p-2 bg-white rounded-md shadow-sm border border-gray-200 md:hidden"
-        aria-label="Toggle Menu"
+        className="fixed top-4 left-4 z-50 p-2.5 bg-white/80 backdrop-blur-md rounded-xl shadow-lg border border-white/50 md:hidden hover:bg-white transition-colors"
       >
         <Menu className="w-6 h-6 text-gray-700" />
       </button>
 
-      {/* Overlay Gelap untuk Mobile */}
-      {isMobileOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm transition-opacity"
-          onClick={() => setIsMobileOpen(false)}
-        />
-      )}
+      {/* Overlay Gelap Mobile */}
+      <div
+        className={cn(
+          "fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity duration-300 md:hidden",
+          isMobileOpen
+            ? "opacity-100 visible"
+            : "opacity-0 invisible pointer-events-none",
+        )}
+        onClick={() => setIsMobileOpen(false)}
+      />
 
-      {/* Sidebar Container */}
+      {/* Sidebar Container (Glass Effect) */}
       <aside
         className={cn(
-          "fixed top-0 left-0 z-50 h-screen w-72 bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 ease-in-out md:translate-x-0",
-          // Logika responsive: Hide di mobile kecuali ditoggle
-          isMobileOpen ? "translate-x-0" : "-translate-x-full"
+          "fixed top-0 left-0 z-50 h-screen w-72 flex flex-col transition-transform duration-300 ease-out",
+          "bg-white/70 backdrop-blur-xl border-r border-white/50 shadow-2xl md:shadow-none",
+          isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
         )}
       >
         {/* Header Logo */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100">
+        <div className="flex items-center justify-between p-6 mb-2">
           <div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+            <h1 className="text-2xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent tracking-tight">
               E-Parking
             </h1>
-            <p className="text-xs text-gray-500 font-medium mt-0.5">
-              Sistem Manajemen Parkir
+            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">
+              Management System
             </p>
           </div>
-          {/* Close button hanya di mobile */}
           <button
             onClick={() => setIsMobileOpen(false)}
-            className="md:hidden text-gray-500"
+            className="md:hidden p-1 hover:bg-gray-100 rounded-full"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
 
         {/* Navigation List */}
-        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-          <div className="mb-2 px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+        <nav className="flex-1 px-4 space-y-2 overflow-y-auto custom-scrollbar">
+          <div className="px-4 mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
             Menu Utama
           </div>
           {menuItems.map((item) => (
@@ -140,24 +150,25 @@ export const Sidebar = ({ role }: SidebarProps) => {
           ))}
         </nav>
 
-        {/* Footer / User Profile Section */}
-        <div className="p-4 border-t border-gray-100 bg-gray-50/50">
-          <div className="flex items-center gap-3 mb-4 px-2">
-            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-xs uppercase">
-              {role.substring(0, 2)}
+        {/* Footer Profile Mini */}
+        <div className="p-4 mx-4 mb-4 rounded-2xl bg-gradient-to-br from-white/50 to-white/10 border border-white/60 shadow-sm backdrop-blur-md">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center text-blue-700 font-bold text-sm shadow-inner">
+              {role.substring(0, 2).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 capitalize truncate">
+              <p className="text-sm font-bold text-gray-800 capitalize truncate">
                 {role} System
               </p>
-              <p className="text-xs text-gray-500 truncate">Online</p>
+              <div className="flex items-center gap-1.5">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                <p className="text-xs text-green-600 font-medium">Online</p>
+              </div>
             </div>
           </div>
-
-          <button className="flex items-center gap-3 w-full px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-            <LogOut className="w-5 h-5" />
-            <span>Keluar</span>
-          </button>
         </div>
       </aside>
     </>

@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select"; // Gunakan komponen Select kita
+import { Select } from "@/components/ui/Select";
 import {
   RefreshCw,
   Search,
@@ -17,11 +17,14 @@ import {
   FileText,
   ChevronLeft,
   ChevronRight,
+  ShieldCheck,
+  History,
+  Clock,
+  User as UserIcon,
 } from "lucide-react";
 import { getInitials, cn } from "@/lib/utils";
 import api from "@/lib/axios";
 
-// --- TYPES ---
 interface LogData {
   id_log: number;
   aktivitas: string;
@@ -32,35 +35,25 @@ interface LogData {
   } | null;
 }
 
+const GLASS_STYLE =
+  "bg-white/70 backdrop-blur-xl border border-white/40 shadow-xl shadow-blue-900/5";
+
 export default function LogPage() {
-  // --- STATE ---
   const [logs, setLogs] = useState<LogData[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Filter & Pagination State
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10; // Jumlah data per halaman
+  const itemsPerPage = 10;
 
-  // --- FETCH DATA ---
   const fetchLogs = async () => {
     setLoading(true);
     try {
       const response = await api.get("/logs");
-      // Handle response structure
       const data = Array.isArray(response.data.data)
         ? response.data.data
         : response.data;
-
-      // Sort: Paling baru di atas
-      const sortedData = data.sort(
-        (a: LogData, b: LogData) =>
-          new Date(b.waktu_aktivitas).getTime() -
-          new Date(a.waktu_aktivitas).getTime()
-      );
-
-      setLogs(sortedData);
+      setLogs(data); // Backend sudah mengurutkan berdasarkan DESC
     } catch (error) {
       console.error("Gagal ambil logs", error);
     } finally {
@@ -72,144 +65,171 @@ export default function LogPage() {
     fetchLogs();
   }, []);
 
-  // --- LOGIC FILTER & PAGINATION (Client Side) ---
   const filteredLogs = useMemo(() => {
     return logs.filter((log) => {
-      // 1. Filter Search (Cari di aktivitas atau nama user)
       const matchesSearch =
         log.aktivitas.toLowerCase().includes(search.toLowerCase()) ||
         log.user?.nama_lengkap.toLowerCase().includes(search.toLowerCase());
-
-      // 2. Filter Role
       const matchesRole =
         roleFilter === "all" ? true : log.user?.role === roleFilter;
-
       return matchesSearch && matchesRole;
     });
   }, [logs, search, roleFilter]);
 
-  // Hitung Slice Pagination
   const totalPages = Math.ceil(filteredLogs.length / itemsPerPage);
   const currentLogs = filteredLogs.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
-  // Reset page jika filter berubah
   useEffect(() => {
     setCurrentPage(1);
   }, [search, roleFilter]);
 
-  // --- HELPER: ICON & COLOR BY ACTIVITY ---
   const getActivityStyle = (text: string) => {
     const t = text.toLowerCase();
     if (t.includes("hapus") || t.includes("delete"))
-      return { icon: Trash2, color: "text-red-600 bg-red-50 border-red-100" };
-    if (t.includes("tambah") || t.includes("create") || t.includes("input"))
+      return {
+        icon: Trash2,
+        color: "text-rose-600 bg-rose-50 border-rose-100 ring-rose-500/20",
+      };
+    if (
+      t.includes("tambah") ||
+      t.includes("create") ||
+      t.includes("check-in") ||
+      t.includes("masuk")
+    )
       return {
         icon: PlusCircle,
-        color: "text-green-600 bg-green-50 border-green-100",
+        color:
+          "text-emerald-600 bg-emerald-50 border-emerald-100 ring-emerald-500/20",
       };
-    if (t.includes("edit") || t.includes("update") || t.includes("ubah"))
+    if (
+      t.includes("edit") ||
+      t.includes("update") ||
+      t.includes("checkout") ||
+      t.includes("keluar")
+    )
       return {
         icon: Edit,
-        color: "text-amber-600 bg-amber-50 border-amber-100",
+        color: "text-sky-600 bg-sky-50 border-sky-100 ring-sky-500/20",
       };
     if (t.includes("login"))
-      return { icon: LogIn, color: "text-blue-600 bg-blue-50 border-blue-100" };
-    if (t.includes("logout"))
       return {
-        icon: LogOut,
-        color: "text-gray-600 bg-gray-50 border-gray-100",
+        icon: LogIn,
+        color:
+          "text-indigo-600 bg-indigo-50 border-indigo-100 ring-indigo-500/20",
       };
 
     return {
       icon: FileText,
-      color: "text-gray-600 bg-gray-50 border-gray-100",
+      color: "text-slate-600 bg-slate-50 border-slate-100 ring-slate-500/20",
     };
   };
 
   return (
     <DashboardLayout requiredRole="admin">
+      {/* Background Decor */}
+      <div className="fixed inset-0 -z-10 pointer-events-none">
+        <div className="absolute top-[10%] left-[20%] w-[600px] h-[600px] bg-purple-400/5 rounded-full blur-[120px]" />
+      </div>
+
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Log Aktivitas</h1>
-          <p className="text-gray-500 text-sm mt-1">
-            Rekaman jejak digital dan audit sistem.
-          </p>
+          <div className="flex items-center gap-2 mb-2 text-indigo-600 font-bold text-xs uppercase tracking-[0.2em]">
+            <ShieldCheck size={16} /> Audit Trail & System Security
+          </div>
+          <h1 className="text-4xl font-black text-slate-800 tracking-tight">
+            Log{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+              Aktivitas
+            </span>
+          </h1>
         </div>
 
         <Button
-          variant="outline"
-          size="sm"
           onClick={fetchLogs}
           disabled={loading}
-          leftIcon={RefreshCw}
-          className={loading ? "animate-pulse" : ""}
+          className="bg-white/50 backdrop-blur-md border border-slate-200 text-slate-700 hover:bg-white rounded-2xl px-6 py-6 shadow-sm flex items-center gap-2 font-bold"
         >
-          Refresh Data
+          <RefreshCw className={cn("w-4 h-4", loading && "animate-spin")} />
+          Refresh Audit
         </Button>
       </div>
 
-      {/* FILTER BAR */}
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-6 flex flex-col md:flex-row gap-4">
-        <div className="flex-1">
+      {/* FILTER BOX */}
+      <div
+        className={cn(
+          GLASS_STYLE,
+          "p-6 rounded-3xl mb-8 flex flex-col md:flex-row gap-4",
+        )}
+      >
+        <div className="flex-1 relative">
           <Input
-            placeholder="Cari aktivitas atau nama user..."
-            startIcon={Search}
+            placeholder="Cari aktivitas atau nama petugas..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            className="bg-white/50 border-white/60 focus:bg-white rounded-2xl pl-12 h-12"
+          />
+          <Search
+            className="absolute left-4 top-3.5 text-slate-400"
+            size={18}
           />
         </div>
-        <div className="w-full md:w-48">
+        <div className="w-full md:w-56">
           <Select
             options={[
-              { value: "all", label: "Semua Role" },
-              { value: "admin", label: "Admin" },
-              { value: "petugas", label: "Petugas" },
-              { value: "owner", label: "Owner" },
+              { value: "all", label: "Semua Jabatan" },
+              { value: "admin", label: "Administrator" },
+              { value: "petugas", label: "Petugas Lapangan" },
+              { value: "owner", label: "Pemilik (Owner)" },
             ]}
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
+            className="rounded-2xl h-12"
           />
         </div>
       </div>
 
-      {/* TABLE */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col min-h-[250px]">
+      {/* LOG TABLE */}
+      <div
+        className={cn(
+          GLASS_STYLE,
+          "rounded-[2.5rem] overflow-hidden flex flex-col min-h-[500px]",
+        )}
+      >
         <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-gray-50/50 text-gray-500 font-medium border-b border-gray-100">
-              <tr>
-                <th className="px-6 py-4 w-[20%]">Waktu</th>
-                <th className="px-6 py-4 w-[25%]">Pelaku (User)</th>
-                <th className="px-6 py-4 w-[55%]">Detail Aktivitas</th>
+          <table className="w-full text-sm text-left border-collapse">
+            <thead>
+              <tr className="bg-white/40 text-slate-400 font-bold text-[10px] uppercase tracking-[0.15em] border-b border-white/40">
+                <th className="px-8 py-5 flex items-center gap-2">
+                  <Clock size={12} /> Waktu Kejadian
+                </th>
+                <th className="px-8 py-5">
+                  <UserIcon size={12} className="inline mr-2" />
+                  Pelaku Sistem
+                </th>
+                <th className="px-8 py-5">Detail Deskripsi Aktivitas</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-white/20">
               {loading ? (
-                // Skeleton
-                [...Array(5)].map((_, i) => (
+                [...Array(6)].map((_, i) => (
                   <tr key={i} className="animate-pulse">
-                    <td className="px-6 py-4">
-                      <div className="h-4 w-32 bg-gray-200 rounded" />
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="h-10 w-40 bg-gray-200 rounded" />
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="h-4 w-64 bg-gray-200 rounded" />
+                    <td colSpan={3} className="px-8 py-8">
+                      <div className="h-10 bg-white/40 rounded-2xl w-full" />
                     </td>
                   </tr>
                 ))
               ) : currentLogs.length === 0 ? (
-                // Empty State
                 <tr>
-                  <td colSpan={3} className="py-12 text-center text-gray-400">
-                    <div className="flex flex-col items-center gap-2">
-                      <AlertCircle className="w-10 h-10 text-gray-300" />
-                      <p>Tidak ada aktivitas ditemukan.</p>
+                  <td colSpan={3} className="py-32 text-center">
+                    <div className="flex flex-col items-center opacity-30 italic">
+                      <History size={64} strokeWidth={1} />
+                      <p className="mt-4 text-lg font-bold">
+                        Belum ada rekaman aktivitas hari ini
+                      </p>
                     </div>
                   </td>
                 </tr>
@@ -221,74 +241,74 @@ export default function LogPage() {
                   return (
                     <tr
                       key={log.id_log}
-                      className="hover:bg-gray-50/50 transition-colors"
+                      className="group hover:bg-white/40 transition-all duration-300"
                     >
-                      {/* Kolom Waktu */}
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-8 py-6 whitespace-nowrap">
                         <div className="flex flex-col">
-                          <span className="font-medium text-gray-900">
+                          <span className="font-black text-slate-800 text-base italic tracking-tight">
                             {new Date(log.waktu_aktivitas).toLocaleTimeString(
                               "id-ID",
-                              { hour: "2-digit", minute: "2-digit" }
+                              { hour: "2-digit", minute: "2-digit" },
                             )}{" "}
                             WIB
                           </span>
-                          <span className="text-xs text-gray-500">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter mt-0.5">
                             {new Date(log.waktu_aktivitas).toLocaleDateString(
                               "id-ID",
                               {
-                                day: "numeric",
-                                month: "short",
+                                day: "2-digit",
+                                month: "long",
                                 year: "numeric",
-                              }
+                              },
                             )}
                           </span>
                         </div>
                       </td>
 
-                      {/* Kolom User */}
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-4">
                           <div
                             className={cn(
-                              "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white uppercase",
+                              "w-11 h-11 rounded-2xl flex items-center justify-center text-sm font-black text-white shadow-lg shadow-indigo-100",
                               log.user?.role === "admin"
-                                ? "bg-purple-500"
+                                ? "bg-indigo-600"
                                 : log.user?.role === "petugas"
-                                ? "bg-blue-500"
-                                : log.user?.role === "owner"
-                                ? "bg-amber-500"
-                                : "bg-gray-400"
+                                  ? "bg-sky-600"
+                                  : log.user?.role === "owner"
+                                    ? "bg-amber-500"
+                                    : "bg-slate-400",
                             )}
                           >
                             {getInitials(log.user?.nama_lengkap || "?")}
                           </div>
                           <div>
-                            <div className="font-medium text-gray-900 text-sm">
+                            <div className="font-black text-slate-800 tracking-tight leading-none mb-1">
                               {log.user?.nama_lengkap || (
-                                <span className="text-red-400 italic">
+                                <span className="text-rose-500 italic">
                                   User Terhapus
                                 </span>
                               )}
                             </div>
-                            <div className="text-[10px] uppercase font-bold tracking-wider text-gray-400">
-                              {log.user?.role || "-"}
-                            </div>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/60 border border-slate-100 text-slate-500 uppercase">
+                              {log.user?.role || "unknown"}
+                            </span>
                           </div>
                         </div>
                       </td>
 
-                      {/* Kolom Aktivitas */}
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-4">
                           <div
-                            className={cn("p-2 rounded-lg border", style.color)}
+                            className={cn(
+                              "p-2.5 rounded-xl border-2 ring-4",
+                              style.color,
+                            )}
                           >
                             <Icon className="w-4 h-4" />
                           </div>
-                          <span className="text-gray-700 font-medium">
+                          <p className="text-slate-700 font-bold leading-relaxed max-w-xl">
                             {log.aktivitas}
-                          </span>
+                          </p>
                         </div>
                       </td>
                     </tr>
@@ -300,30 +320,31 @@ export default function LogPage() {
         </div>
 
         {/* PAGINATION FOOTER */}
-        <div className="mt-auto border-t border-gray-100 p-4 bg-gray-50 flex items-center justify-between">
-          <span className="text-xs text-gray-500">
-            Halaman {currentPage} dari {totalPages || 1} • Total{" "}
-            {filteredLogs.length} Entri
-          </span>
+        <div className="mt-auto border-t border-white/40 p-6 bg-white/30 flex items-center justify-between">
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+            Showing <span className="text-slate-800">{currentLogs.length}</span>{" "}
+            of {filteredLogs.length} entries
+          </p>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Button
               variant="outline"
-              size="sm"
               disabled={currentPage === 1 || loading}
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              onClick={() => setCurrentPage((prev) => prev - 1)}
+              className="rounded-xl border-slate-200 bg-white/50 px-4 py-2 hover:bg-white"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft size={16} />
             </Button>
+            <div className="text-xs font-black text-slate-800 px-3 py-1 bg-white rounded-lg shadow-sm">
+              {currentPage} / {totalPages || 1}
+            </div>
             <Button
               variant="outline"
-              size="sm"
               disabled={currentPage >= totalPages || loading}
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
+              onClick={() => setCurrentPage((prev) => prev + 1)}
+              className="rounded-xl border-slate-200 bg-white/50 px-4 py-2 hover:bg-white"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight size={16} />
             </Button>
           </div>
         </div>
