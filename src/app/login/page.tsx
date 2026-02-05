@@ -6,12 +6,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { User, Lock, AlertCircle, Car, ShieldCheck } from "lucide-react";
-import { motion } from "framer-motion"; 
+import { motion } from "framer-motion";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const { login, loading, error } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,21 +43,19 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen w-full flex bg-[#E3FDFD] overflow-hidden">
-      
       {/* --- BAGIAN KIRI: BRANDING (Hidden di Mobile) --- */}
-      <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-16 text-white overflow-hidden bg-gradient-to-br from-[#71C9CE] to-[#A6E3E9]">
-        
+      <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-16 text-black overflow-hidden bg-gradient-to-br from-[#71C9CE] to-[#A6E3E9]">
         {/* Animated Background Blobs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <motion.div
             animate={{ rotate: 360, scale: [1, 1.2, 1] }}
             transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="absolute -top-[20%] -left-[10%] w-[600px] h-[600px] bg-white/10 rounded-full blur-[80px]"
+            className="absolute -top-[20%] -left-[10%] w-[600px] h-[600px] bg-white/30 rounded-full blur-[80px]"
           />
           <motion.div
             animate={{ rotate: -360, scale: [1, 1.3, 1] }}
             transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-            className="absolute bottom-[10%] -right-[10%] w-[500px] h-[500px] bg-[#E3FDFD]/20 rounded-full blur-[100px]"
+            className="absolute bottom-[10%] -right-[10%] w-[500px] h-[500px] bg-white/40 rounded-full blur-[100px]"
           />
         </div>
 
@@ -66,10 +66,10 @@ export default function LoginPage() {
           transition={{ delay: 0.2 }}
           className="relative z-10 flex items-center gap-4"
         >
-          <div className="p-3 bg-white/20 backdrop-blur-md rounded-2xl border border-white/30 shadow-lg shadow-[#71C9CE]/30">
-            <Car className="w-8 h-8 text-white" />
+          <div className="p-3 bg-white/70 backdrop-blur-md rounded-2xl border border-black/10 shadow-lg">
+            <Car className="w-8 h-8 text-black" />
           </div>
-          <h1 className="text-3xl font-black tracking-tight drop-shadow-sm">SiParkir</h1>
+          <h1 className="text-3xl font-black tracking-tight">SiParkir</h1>
         </motion.div>
 
         {/* Hero Text */}
@@ -78,20 +78,20 @@ export default function LoginPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.8 }}
-            className="text-5xl font-black mb-6 leading-tight drop-shadow-sm"
+            className="text-5xl font-black mb-6 leading-tight text-black"
           >
-            Smart Parking <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-[#E3FDFD]">
-              Management
-            </span>
+            Smart Parking <br />
+            <span className="text-gray-800">Management</span>
           </motion.h2>
+
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.8 }}
-            className="text-white/90 text-lg leading-relaxed font-medium"
+            className="text-gray-800 text-lg leading-relaxed font-medium"
           >
-            Optimalkan operasional parkir Anda dengan sistem monitoring real-time dan manajemen tarif yang efisien.
+            Optimalkan operasional parkir Anda dengan sistem monitoring
+            real-time dan manajemen tarif yang efisien.
           </motion.p>
         </div>
 
@@ -100,16 +100,15 @@ export default function LoginPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
-          className="relative z-10 flex items-center gap-2 text-sm text-white font-bold bg-white/10 w-fit px-5 py-2.5 rounded-full backdrop-blur-md border border-white/20"
+          className="relative z-10 flex items-center gap-2 text-sm text-black font-bold bg-white/70 w-fit px-5 py-2.5 rounded-full backdrop-blur-md border border-black/10"
         >
-          <ShieldCheck className="w-4 h-4" />
+          <ShieldCheck className="w-4 h-4 text-black" />
           <span>Sistem Terenkripsi & Aman</span>
         </motion.div>
       </div>
 
       {/* --- BAGIAN KANAN: FORM LOGIN --- */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-6 sm:p-12 lg:p-24 relative">
-        
         {/* Dekorasi Blob Kanan (CSS Only) */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#CBF1F5]/50 rounded-full blur-[120px] pointer-events-none" />
 
@@ -167,12 +166,14 @@ export default function LoginPage() {
                 <Input
                   id="password"
                   label="Password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={loading}
                   startIcon={Lock}
+                  endIcon={showPassword ? EyeOff : Eye}
+                  onEndIconClick={() => setShowPassword((prev) => !prev)}
                   required
                   autoComplete="current-password"
                   className="bg-white"

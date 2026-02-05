@@ -19,9 +19,6 @@ import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { motion, useScroll, useTransform } from "framer-motion";
 
-/* =========================
-   BACKGROUND BLOBS (Teal Palette)
-   ========================= */
 const BackgroundBlobs = () => (
   <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none bg-[#F0FBFC]">
     {/* Blob Teal Kiri Atas */}
@@ -57,10 +54,6 @@ const BackgroundBlobs = () => (
     />
   </div>
 );
-
-/* =========================
-   COMPONENTS
-   ========================= */
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -230,8 +223,8 @@ const HeroSection = () => {
               <div className="absolute inset-0 bg-gradient-to-br from-[#E3FDFD] to-white flex items-center justify-center">
                 <div className="text-center p-10">
                   <Image
-                    src="/dashboard-preview.png" // Pastikan ada file ini atau ganti
-                    alt="Dashboard Preview"
+                    src="/admin-dashboard.png" // Pastikan ada file ini atau ganti
+                    alt="Dashboard Admin Preview"
                     fill
                     className="object-cover object-top opacity-90 group-hover:scale-105 transition-transform duration-700"
                   />
