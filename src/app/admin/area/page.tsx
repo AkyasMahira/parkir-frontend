@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Modal } from "@/components/ui/Modal";
 import {
   MapPin,
   Trash2,
@@ -15,6 +14,7 @@ import {
   Pencil,
   AlertTriangle,
   Car,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import api from "@/lib/axios";
@@ -27,9 +27,45 @@ interface AreaParkir {
   terisi: number;
 }
 
-// Style Constants (Teal Palette)
+// Style Constants
 const GLASS_CARD =
   "bg-white/70 backdrop-blur-xl border border-white/40 shadow-xl shadow-[#71C9CE]/5 rounded-[2rem] overflow-hidden";
+
+// --- SIMPLE MODAL COMPONENT (Inline) ---
+const SimpleModal = ({
+  isOpen,
+  onClose,
+  title,
+  children,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  children: React.ReactNode;
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+      <div
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
+        onClick={onClose}
+      />
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden scale-100 animate-in zoom-in-95 duration-200">
+        <div className="flex justify-between items-center p-4 border-b border-slate-100">
+          <h3 className="font-bold text-slate-800">{title}</h3>
+          <button
+            onClick={onClose}
+            className="p-1 text-slate-400 hover:bg-slate-100 rounded-full transition-colors"
+          >
+            <X size={20} />
+          </button>
+        </div>
+        <div className="p-6">{children}</div>
+      </div>
+    </div>
+  );
+};
 
 export default function AreaPage() {
   const [areas, setAreas] = useState<AreaParkir[]>([]);
@@ -145,11 +181,11 @@ export default function AreaPage() {
   return (
     <DashboardLayout requiredRole="admin">
       {/* HEADER */}
-      <div className="mb-10">
+      <div className="mb-8 md:mb-10">
         <div className="flex items-center gap-2 mb-2 text-[#71C9CE] font-bold text-xs uppercase tracking-widest">
           <Layers size={14} /> System Infrastructure
         </div>
-        <h1 className="text-4xl font-black text-slate-800 tracking-tight">
+        <h1 className="text-3xl md:text-4xl font-black text-slate-800 tracking-tight">
           Manajemen Area Parkir
         </h1>
         <p className="text-gray-500 font-medium text-sm mt-1">
@@ -157,11 +193,16 @@ export default function AreaPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 items-start">
         {/* --- FORM CARD (CREATE) --- */}
-        <div className={cn(GLASS_CARD, "lg:col-span-1 p-8 sticky top-24")}>
+        <div
+          className={cn(
+            GLASS_CARD,
+            "lg:col-span-1 p-6 md:p-8 lg:sticky lg:top-24 order-1",
+          )}
+        >
           <div className="flex items-center gap-4 mb-8">
-            <div className="w-12 h-12 rounded-2xl bg-[#E3FDFD] flex items-center justify-center text-[#71C9CE] shadow-inner">
+            <div className="w-12 h-12 rounded-2xl bg-[#E3FDFD] flex items-center justify-center text-[#71C9CE] shadow-inner shrink-0">
               <Plus className="w-6 h-6" />
             </div>
             <div>
@@ -221,8 +262,8 @@ export default function AreaPage() {
           </form>
         </div>
 
-        {/* --- LIST & MONITORING --- */}
-        <div className={cn(GLASS_CARD, "lg:col-span-2 min-h-[400px]")}>
+        {/* --- LIST & MONITORING (Responsive Table/Card) --- */}
+        <div className={cn(GLASS_CARD, "lg:col-span-2 min-h-[400px] order-2")}>
           <div className="p-6 border-b border-[#A6E3E9]/30 bg-gradient-to-r from-[#E3FDFD]/30 to-white/30 flex justify-between items-center">
             <h3 className="font-black text-slate-800 text-lg">
               Status Kapasitas
@@ -232,7 +273,8 @@ export default function AreaPage() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* === 1. DESKTOP VIEW (TABLE) === */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm text-left border-collapse">
               <thead className="bg-[#E3FDFD]/50 text-slate-500 font-bold uppercase text-[11px] tracking-wider border-b border-[#A6E3E9]/30">
                 <tr>
@@ -356,11 +398,104 @@ export default function AreaPage() {
               </tbody>
             </table>
           </div>
+
+          {/* === 2. MOBILE VIEW (CARDS) === */}
+          <div className="md:hidden flex flex-col p-4 gap-4 bg-slate-50/50">
+            {loading ? (
+              [...Array(3)].map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-white p-5 rounded-2xl animate-pulse space-y-4"
+                >
+                  <div className="flex gap-4">
+                    <div className="w-12 h-12 bg-gray-200 rounded-xl" />
+                    <div className="space-y-2 flex-1">
+                      <div className="h-4 bg-gray-200 rounded w-1/2" />
+                      <div className="h-3 bg-gray-200 rounded w-1/4" />
+                    </div>
+                  </div>
+                  <div className="h-2 bg-gray-200 rounded-full w-full" />
+                </div>
+              ))
+            ) : areas.length === 0 ? (
+              <div className="text-center py-10 text-gray-400">
+                <p className="text-sm">Belum ada area parkir</p>
+              </div>
+            ) : (
+              areas.map((a) => {
+                const percentage =
+                  a.kapasitas > 0
+                    ? Math.min(Math.round((a.terisi / a.kapasitas) * 100), 100)
+                    : 0;
+                const isFull = a.terisi >= a.kapasitas;
+
+                return (
+                  <div
+                    key={a.id_area}
+                    className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden"
+                  >
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#71C9CE] to-[#A6E3E9] flex items-center justify-center text-white shadow-md shadow-[#71C9CE]/20">
+                          <MapPin size={20} />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-slate-800 text-lg">
+                            {a.nama_area}
+                          </h4>
+                          <p className="text-xs text-slate-400 font-bold uppercase">
+                            Kapasitas: {a.kapasitas}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => openEditModal(a)}
+                          className="p-2 bg-slate-50 rounded-lg text-slate-400 hover:text-[#71C9CE]"
+                        >
+                          <Pencil size={16} />
+                        </button>
+                        <button
+                          onClick={() => openDeleteModal(a)}
+                          className="p-2 bg-slate-50 rounded-lg text-slate-400 hover:text-red-500"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs font-bold">
+                        <span
+                          className={isFull ? "text-red-500" : "text-slate-600"}
+                        >
+                          Terisi: {a.terisi}
+                        </span>
+                        <span className="text-[#71C9CE]">{percentage}%</span>
+                      </div>
+                      <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className={cn(
+                            "h-full transition-all duration-700 ease-out rounded-full",
+                            getProgressColor(percentage),
+                          )}
+                          style={{ width: `${percentage}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
         </div>
       </div>
 
       {/* --- MODAL EDIT --- */}
-      <Modal
+      <SimpleModal
         isOpen={isEditOpen}
         onClose={resetState}
         title="Edit Area Parkir"
@@ -411,14 +546,13 @@ export default function AreaPage() {
             </Button>
           </div>
         </form>
-      </Modal>
+      </SimpleModal>
 
       {/* --- MODAL DELETE --- */}
-      <Modal
+      <SimpleModal
         isOpen={isDeleteOpen}
         onClose={resetState}
         title="Hapus Area?"
-        maxWidth="max-w-sm"
       >
         <div className="text-center">
           <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 ring-4 ring-red-50">
@@ -461,7 +595,7 @@ export default function AreaPage() {
             </Button>
           </div>
         </div>
-      </Modal>
+      </SimpleModal>
     </DashboardLayout>
   );
 }

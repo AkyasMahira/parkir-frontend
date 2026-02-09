@@ -12,12 +12,13 @@ import {
   CheckCircle2,
   Menu,
   X,
+  ChevronRight,
   CreditCard,
   Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 
 const BackgroundBlobs = () => (
   <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none bg-[#F0FBFC]">
@@ -65,6 +66,9 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Menu items array agar lebih rapi
+  const menuItems = ["Fitur", "Cara Kerja", "Keunggulan"];
+
   return (
     <motion.nav
       initial={{ y: -100 }}
@@ -72,13 +76,14 @@ const Navbar = () => {
       transition={{ duration: 0.5 }}
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b",
-        scrolled
-          ? "bg-white/80 backdrop-blur-xl border-white/40 shadow-sm shadow-[#71C9CE]/5"
-          : "bg-transparent border-transparent",
+        scrolled || mobileMenuOpen
+          ? "bg-white/90 backdrop-blur-xl border-white/40 shadow-sm shadow-[#71C9CE]/5"
+          : "bg-transparent border-transparent"
       )}
     >
-      <div className="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
-        <div className="flex items-center gap-3 font-black text-xl text-slate-800 tracking-tight">
+      <div className="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between relative z-50">
+        {/* LOGO */}
+        <div className="flex items-center gap-3 font-black text-xl text-slate-800 tracking-tight cursor-pointer">
           <div className="bg-gradient-to-tr from-[#71C9CE] to-[#A6E3E9] text-white p-2.5 rounded-2xl shadow-lg shadow-[#71C9CE]/30">
             <CarFront size={24} />
           </div>
@@ -87,8 +92,9 @@ const Navbar = () => {
           </span>
         </div>
 
+        {/* DESKTOP MENU (Hidden on Mobile) */}
         <div className="hidden md:flex items-center gap-8 text-sm font-bold text-slate-600">
-          {["Fitur", "Cara Kerja", "Keunggulan"].map((item) => (
+          {menuItems.map((item) => (
             <a
               key={item}
               href={`#${item.toLowerCase().replace(" ", "-")}`}
@@ -100,30 +106,81 @@ const Navbar = () => {
           ))}
         </div>
 
+        {/* DESKTOP ACTIONS */}
         <div className="flex items-center gap-4">
-          <Link href="/login" className="hidden sm:block">
-            <Button
-              variant="secondary"
-              className="bg-white/50 hover:bg-white text-slate-700 border border-white shadow-sm"
-            >
-              Masuk Petugas
-            </Button>
-          </Link>
-          <Link href="/login">
-            <Button className="bg-[#71C9CE] hover:bg-[#5dbbc0] text-white shadow-lg shadow-[#71C9CE]/30 border border-white/20 rounded-full px-8 h-12">
-              Mulai Sekarang
-            </Button>
-          </Link>
+          {/* Sembunyikan tombol di mobile agar header tidak penuh sesak */}
+          <div className="hidden md:flex items-center gap-4">
+            <Link href="/login">
+              <Button
+                variant="secondary"
+                className="bg-white/50 hover:bg-white text-slate-700 border border-white shadow-sm"
+              >
+                Masuk Petugas
+              </Button>
+            </Link>
+            <Link href="/login">
+              <Button className="bg-[#71C9CE] hover:bg-[#5dbbc0] text-white shadow-lg shadow-[#71C9CE]/30 border border-white/20 rounded-full px-8 h-12">
+                Mulai Sekarang
+              </Button>
+            </Link>
+          </div>
 
-          {/* Mobile Menu Toggle */}
+          {/* MOBILE TOGGLE BUTTON */}
           <button
-            className="md:hidden p-2 text-slate-600"
+            className="md:hidden p-2 text-slate-600 bg-white/50 rounded-xl hover:bg-white transition-all"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            {mobileMenuOpen ? <X /> : <Menu />}
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
+
+      {/* === MOBILE MENU DROPDOWN === */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="md:hidden bg-white border-b border-slate-100 overflow-hidden shadow-xl"
+          >
+            <div className="px-6 py-8 flex flex-col gap-6">
+              {/* Mobile Links */}
+              <div className="flex flex-col gap-2">
+                {menuItems.map((item) => (
+                  <a
+                    key={item}
+                    href={`#${item.toLowerCase().replace(" ", "-")}`}
+                    onClick={() => setMobileMenuOpen(false)} // Tutup menu saat klik
+                    className="flex items-center justify-between text-lg font-bold text-slate-600 py-3 border-b border-slate-50 hover:text-[#71C9CE] hover:pl-2 transition-all"
+                  >
+                    {item}
+                    <ChevronRight size={16} className="text-slate-300" />
+                  </a>
+                ))}
+              </div>
+
+              {/* Mobile Buttons */}
+              <div className="flex flex-col gap-3 mt-2">
+                <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                  <Button
+                    variant="secondary"
+                    className="w-full justify-center bg-slate-50 border border-slate-100 h-12 rounded-xl"
+                  >
+                    Masuk Petugas
+                  </Button>
+                </Link>
+                <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                  <Button className="w-full justify-center bg-[#71C9CE] hover:bg-[#5dbbc0] text-white shadow-lg shadow-[#71C9CE]/20 h-12 rounded-xl font-bold">
+                    Mulai Sekarang
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.nav>
   );
 };

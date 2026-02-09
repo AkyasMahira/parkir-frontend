@@ -210,8 +210,12 @@ export default function RiwayatPage() {
   const [data, setData] = useState<Transaksi[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Filter States
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -257,18 +261,38 @@ export default function RiwayatPage() {
 
   const filteredData = useMemo(() => {
     return data.filter((item) => {
+      // 1. Filter Search (Plat Nomor)
       const matchesSearch = item.plat_nomor
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
+
+      // 2. Filter Status
       let matchesStatus = true;
       if (statusFilter === "masuk") matchesStatus = item.status === "parkir";
       else if (statusFilter === "keluar")
         matchesStatus = item.status === "selesai";
       else if (statusFilter === "pending")
         matchesStatus = item.status === "menunggu_bayar";
-      return matchesSearch && matchesStatus;
+
+      // 3. Filter Date Range
+      let matchesDate = true;
+      if (startDate || endDate) {
+        const itemDate = new Date(item.waktu_masuk);
+        if (startDate) {
+          const start = new Date(startDate);
+          start.setHours(0, 0, 0, 0);
+          if (itemDate < start) matchesDate = false;
+        }
+        if (endDate && matchesDate) {
+          const end = new Date(endDate);
+          end.setHours(23, 59, 59, 999);
+          if (itemDate > end) matchesDate = false;
+        }
+      }
+
+      return matchesSearch && matchesStatus && matchesDate;
     });
-  }, [data, searchQuery, statusFilter]);
+  }, [data, searchQuery, statusFilter, startDate, endDate]);
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const currentItems = filteredData.slice(
@@ -315,12 +339,19 @@ export default function RiwayatPage() {
     const csvString = "\uFEFF" + [headers.join(","), ...csvRows].join("\n");
     const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
+
+    let fileName = "Laporan_Parkir";
+    if (startDate && endDate) {
+      fileName += `_${startDate}_sd_${endDate}`;
+    } else if (startDate) {
+      fileName += `_dari_${startDate}`;
+    } else {
+      fileName += `_${new Date().toISOString().split("T")[0]}`;
+    }
+
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute(
-      "download",
-      `Laporan_Parkir_${new Date().toISOString().split("T")[0]}.csv`,
-    );
+    link.setAttribute("download", `${fileName}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -330,19 +361,19 @@ export default function RiwayatPage() {
     switch (status.toLowerCase()) {
       case "parkir":
         return (
-          <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-[#E3FDFD] text-[#71C9CE] border border-[#A6E3E9] uppercase tracking-wide">
+          <span className="inline-flex px-2.5 py-1 rounded-lg text-[10px] font-bold bg-[#E3FDFD] text-[#71C9CE] border border-[#A6E3E9] uppercase tracking-wide">
             Active
           </span>
         );
       case "selesai":
         return (
-          <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase tracking-wide">
+          <span className="inline-flex px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase tracking-wide">
             Done
           </span>
         );
       case "menunggu_bayar":
         return (
-          <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-100 uppercase tracking-wide">
+          <span className="inline-flex px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-100 uppercase tracking-wide">
             Unpaid
           </span>
         );
@@ -381,50 +412,72 @@ export default function RiwayatPage() {
       <div
         className={cn(
           GLASS_CARD,
-          "p-6 mb-8 flex flex-col lg:flex-row gap-4 relative z-10",
+          "p-4 md:p-6 mb-8 flex flex-col lg:flex-row items-stretch lg:items-center gap-4 relative z-10",
         )}
       >
-        {/* Search Input */}
-        <div className="flex-1">
+        {/* 1. Search Input (Full width on mobile, Flexible on desktop) */}
+        <div className="flex-1 w-full">
           <Input
             placeholder="Cari Plat Nomor..."
             startIcon={Search}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="bg-white pl-11 h-12"
+            className="bg-white pl-11 h-12 w-full"
           />
         </div>
 
-        {/* Status Select */}
-        <div className="w-full lg:w-64">
-          <Select
-            options={[
-              { value: "all", label: "Semua Status" },
-              { value: "masuk", label: "Sedang Parkir" },
-              { value: "keluar", label: "Selesai" },
-            ]}
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-white pl-4 h-12"
+        {/* 2. Date Range Inputs (Stack on mobile, Side-by-side on md/lg) */}
+        <div className="flex flex-col md:flex-row gap-2 w-full lg:w-auto">
+          <Input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="bg-white h-12 w-full md:w-auto lg:w-40"
+            placeholder="Dari Tanggal"
+            title="Dari Tanggal"
+          />
+          <Input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="bg-white h-12 w-full md:w-auto lg:w-40"
+            placeholder="Sampai Tanggal"
+            title="Sampai Tanggal"
           />
         </div>
 
-        {/* Export Button */}
-        <Button
-          onClick={handleExport}
-          disabled={filteredData.length === 0}
-          className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/20 h-12 px-6 rounded-2xl flex items-center gap-2 whitespace-nowrap font-bold"
-        >
-          <FileSpreadsheet className="w-4 h-4" />
-          <span>Export CSV</span>
-        </Button>
+        {/* 3. Status Select & Export (Stack on mobile, Side-by-side on md/lg) */}
+        <div className="flex flex-col md:flex-row gap-2 w-full lg:w-auto">
+          <div className="w-full md:w-48 lg:w-48">
+            <Select
+              options={[
+                { value: "all", label: "Semua Status" },
+                { value: "masuk", label: "Sedang Parkir" },
+                { value: "keluar", label: "Selesai" },
+              ]}
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="bg-white pl-4 h-12 w-full"
+            />
+          </div>
+
+          <Button
+            onClick={handleExport}
+            disabled={filteredData.length === 0}
+            className="w-full md:w-auto bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/20 h-12 px-6 rounded-2xl flex items-center justify-center gap-2 whitespace-nowrap font-bold"
+          >
+            <FileSpreadsheet className="w-4 h-4" />
+            <span>Export</span>
+          </Button>
+        </div>
       </div>
 
-      {/* TABLE */}
+      {/* DATA CONTAINER */}
       <div
         className={cn(GLASS_CARD, "flex flex-col min-h-[500px] relative z-10")}
       >
-        <div className="overflow-x-auto flex-1">
+        {/* === 1. DESKTOP VIEW (TABLE) === */}
+        <div className="hidden md:block overflow-x-auto flex-1">
           <table className="w-full text-sm text-left">
             <thead className="bg-[#E3FDFD]/50 text-slate-500 font-bold uppercase text-[10px] tracking-wider border-b border-[#A6E3E9]/30">
               <tr>
@@ -517,6 +570,106 @@ export default function RiwayatPage() {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* === 2. MOBILE VIEW (CARDS) === */}
+        <div className="md:hidden flex-1 p-4 space-y-4 bg-slate-50/50">
+          {loading ? (
+            [...Array(3)].map((_, i) => (
+              <div
+                key={i}
+                className="bg-white p-5 rounded-2xl animate-pulse space-y-3 shadow-sm"
+              >
+                <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                <div className="h-10 bg-gray-200 rounded w-full"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            ))
+          ) : currentItems.length === 0 ? (
+            <div className="text-center py-20 text-gray-400">
+              <Search className="w-10 h-10 mx-auto mb-2 text-gray-300" />
+              <p className="font-bold text-sm">Data tidak ditemukan</p>
+            </div>
+          ) : (
+            currentItems.map((row) => (
+              <div
+                key={row.id_transaksi}
+                className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4 relative overflow-hidden"
+              >
+                {/* Decorative status bar left */}
+                <div
+                  className={cn(
+                    "absolute left-0 top-0 bottom-0 w-1.5",
+                    row.status === "selesai"
+                      ? "bg-emerald-400"
+                      : "bg-[#71C9CE]",
+                  )}
+                />
+
+                <div className="flex justify-between items-start pl-2">
+                  <div>
+                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      {new Date(row.waktu_masuk).toLocaleDateString("id-ID", {
+                        day: "numeric",
+                        month: "short",
+                        year: "2-digit",
+                      })}
+                    </div>
+                    <div className="font-bold text-slate-600 text-xs mt-0.5 flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {new Date(row.waktu_masuk).toLocaleTimeString("id-ID", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </div>
+                  </div>
+                  {getStatusBadge(row.status)}
+                </div>
+
+                <div className="flex items-center gap-3 pl-2">
+                  <div className="w-12 h-12 bg-[#E3FDFD] rounded-xl flex items-center justify-center text-[#71C9CE]">
+                    <CarFront className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <span className="block text-lg font-black text-slate-800">
+                      {row.plat_nomor}
+                    </span>
+                    <span className="text-xs font-semibold text-slate-400 uppercase">
+                      {row.jenis_kendaraan}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between border-t border-slate-100 pt-3 pl-2 mt-1">
+                  <div>
+                    <span className="text-[10px] text-slate-400 uppercase font-bold">
+                      Total Biaya
+                    </span>
+                    <div className="font-black text-slate-700 text-base">
+                      {row.biaya_total > 0
+                        ? formatRupiah(row.biaya_total)
+                        : "-"}
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={() => openStrukModal(row.id_transaksi)}
+                    disabled={isLoadingStrukId === row.id_transaksi}
+                    className="bg-white border border-slate-200 text-slate-600 hover:bg-[#E3FDFD] hover:text-[#71C9CE] shadow-sm h-9 px-4"
+                  >
+                    {isLoadingStrukId === row.id_transaksi ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <>
+                        <Eye className="w-4 h-4 mr-1.5" /> Detail
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
 
         {/* Footer Pagination */}

@@ -14,7 +14,6 @@ import {
   QrCode,
   Banknote,
   Clock,
-  MoreHorizontal,
 } from "lucide-react";
 import { formatRupiah, cn } from "@/lib/utils";
 import api from "@/lib/axios";
@@ -43,7 +42,7 @@ interface DashboardStats {
 const GLASS_CARD =
   "bg-white/70 backdrop-blur-xl border border-white/40 shadow-xl shadow-[#71C9CE]/5 rounded-[2rem] overflow-hidden";
 
-// --- COMPONENT STAT CARD (GLASS STYLE) ---
+// --- COMPONENT STAT CARD ---
 interface StatCardProps {
   label: string;
   value: string | number;
@@ -139,11 +138,9 @@ export default function PetugasDashboard() {
   const [currentDate, setCurrentDate] = useState("");
 
   useEffect(() => {
-    // 1. Load User Local
     const userStr = localStorage.getItem("user");
     if (userStr) setUser(JSON.parse(userStr));
 
-    // 2. Set Tanggal
     const dateOptions: Intl.DateTimeFormatOptions = {
       weekday: "long",
       day: "numeric",
@@ -152,24 +149,18 @@ export default function PetugasDashboard() {
     };
     setCurrentDate(new Date().toLocaleDateString("id-ID", dateOptions));
 
-    // 3. Fetch Data API
     const fetchData = async () => {
       try {
-        const res = await api.get("/transaksi?limit=300"); // Ambil lebih banyak data
+        const res = await api.get("/transaksi?limit=300");
         const rawData: Transaksi[] = res.data.data || [];
-
-        // Update Tabel Recent Activity (ambil 5 teratas)
         setRecentData(rawData.slice(0, 5));
 
         const todayStr = new Date().toLocaleDateString("id-ID");
 
-        // --- FILTER LOGIC ---
-        // 1. Sedang Parkir
         const active = rawData.filter(
           (t) => t.status === "parkir" || t.status === "masuk",
         ).length;
 
-        // 2. Transaksi Hari Ini
         const todaysTx = rawData.filter((t) => {
           if (
             (t.status !== "selesai" && t.status !== "keluar") ||
@@ -180,7 +171,6 @@ export default function PetugasDashboard() {
           return txDate === todayStr;
         });
 
-        // 3. Pisahkan Uang Tunai & QRIS
         const tunai = todaysTx
           .filter((t) => t.metode_bayar === "cash")
           .reduce((sum, t) => sum + (Number(t.biaya_total) || 0), 0);
@@ -205,7 +195,6 @@ export default function PetugasDashboard() {
     fetchData();
   }, []);
 
-  // Helper Badge untuk Tabel
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "parkir":
@@ -240,14 +229,14 @@ export default function PetugasDashboard() {
               {currentDate}
             </span>
           </div>
-          <h1 className="text-4xl font-black text-slate-800 tracking-tight">
+          <h1 className="text-3xl md:text-4xl font-black text-slate-800 tracking-tight">
             Halo,{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#71C9CE] to-[#4AA3A8]">
               {user?.nama_lengkap?.split(" ")[0] || "Petugas"}
             </span>{" "}
             👋
           </h1>
-          <p className="text-gray-500 font-medium mt-1">
+          <p className="text-gray-500 font-medium mt-1 text-sm md:text-base">
             Selamat bertugas! Pantau aktivitas parkir hari ini.
           </p>
         </div>
@@ -265,7 +254,7 @@ export default function PetugasDashboard() {
       </div>
 
       {/* STATS GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
         <StatCard
           label="Sedang Parkir"
           value={stats.sedangParkir}
@@ -284,7 +273,6 @@ export default function PetugasDashboard() {
           description="Total hari ini"
         />
 
-        {/* PENTING: Uang Tunai */}
         <StatCard
           label="Uang Tunai"
           value={formatRupiah(stats.pendapatanTunai)}
@@ -294,7 +282,6 @@ export default function PetugasDashboard() {
           description="Wajib disetor"
         />
 
-        {/* Info QRIS */}
         <StatCard
           label="Pendapatan QRIS"
           value={formatRupiah(stats.pendapatanQris)}
@@ -308,9 +295,8 @@ export default function PetugasDashboard() {
       {/* MAIN CONTENT AREA */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* LEFT: CTA SECTION */}
-        <div className="lg:col-span-1 h-full">
+        <div className="lg:col-span-1 h-full order-2 lg:order-1">
           <div className="relative overflow-hidden rounded-[2rem] p-8 text-white shadow-xl shadow-[#71C9CE]/20 h-full flex flex-col justify-between group bg-gradient-to-br from-[#71C9CE] to-[#4AA3A8]">
-            {/* Background Blob Animation */}
             <div className="absolute -top-20 -right-20 w-60 h-60 bg-white/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700" />
             <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#4AA3A8]/50 to-transparent" />
 
@@ -338,9 +324,9 @@ export default function PetugasDashboard() {
         </div>
 
         {/* RIGHT: RECENT ACTIVITY */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 order-1 lg:order-2">
           <div className={cn(GLASS_CARD, "h-full flex flex-col")}>
-            <div className="p-8 border-b border-[#A6E3E9]/30 flex justify-between items-center bg-gradient-to-r from-[#E3FDFD]/30 to-white/30">
+            <div className="p-6 md:p-8 border-b border-[#A6E3E9]/30 flex justify-between items-center bg-gradient-to-r from-[#E3FDFD]/30 to-white/30">
               <h3 className="font-black text-slate-800 text-lg">
                 Aktivitas Terkini
               </h3>
@@ -352,7 +338,8 @@ export default function PetugasDashboard() {
               </Link>
             </div>
 
-            <div className="overflow-x-auto flex-1">
+            {/* === 1. DESKTOP TABLE === */}
+            <div className="hidden md:block overflow-x-auto flex-1">
               <table className="w-full text-sm text-left">
                 <thead className="bg-[#E3FDFD]/50 text-slate-500 font-bold uppercase text-[10px] tracking-wider border-b border-[#A6E3E9]/30">
                   <tr>
@@ -437,6 +424,88 @@ export default function PetugasDashboard() {
                   )}
                 </tbody>
               </table>
+            </div>
+
+            {/* === 2. MOBILE CARD LIST === */}
+            <div className="md:hidden flex flex-col p-4 gap-4 bg-slate-50/50">
+              {loading ? (
+                [...Array(3)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-white p-4 rounded-xl shadow-sm animate-pulse space-y-3"
+                  >
+                    <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                    <div className="h-6 bg-gray-200 rounded w-full"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                  </div>
+                ))
+              ) : recentData.length === 0 ? (
+                <div className="text-center py-10 text-gray-400 italic">
+                  Belum ada aktivitas hari ini.
+                </div>
+              ) : (
+                recentData.map((row) => (
+                  <div
+                    key={row.id_transaksi}
+                    className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden flex flex-col gap-3"
+                  >
+                    {/* Decorative line */}
+                    <div
+                      className={cn(
+                        "absolute left-0 top-0 bottom-0 w-1",
+                        row.status === "selesai"
+                          ? "bg-emerald-400"
+                          : "bg-[#71C9CE]",
+                      )}
+                    />
+
+                    <div className="flex justify-between items-start pl-2">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {new Date(row.waktu_masuk).toLocaleTimeString(
+                            "id-ID",
+                            { hour: "2-digit", minute: "2-digit" },
+                          )}
+                        </span>
+                        <span className="text-lg font-black text-slate-800 mt-1">
+                          {row.plat_nomor}
+                        </span>
+                        <span className="text-xs text-slate-500 font-medium capitalize">
+                          {row.jenis_kendaraan}
+                        </span>
+                      </div>
+
+                      {row.status === "selesai" && row.biaya_total > 0 ? (
+                        <span
+                          className={cn(
+                            "text-[10px] font-bold uppercase px-2.5 py-1 rounded-lg border",
+                            (row.biaya_total > 0 && !row.metode_bayar) ||
+                              row.metode_bayar === "cash"
+                              ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+                              : "bg-purple-50 text-purple-600 border-purple-100",
+                          )}
+                        >
+                          {row.metode_bayar || "CASH"}
+                        </span>
+                      ) : (
+                        getStatusBadge(row.status)
+                      )}
+                    </div>
+
+                    <div className="border-t border-slate-100 pt-3 flex justify-between items-center pl-2">
+                      <span className="text-xs font-bold text-slate-400 uppercase">
+                        Total Biaya
+                      </span>
+                      <span className="text-sm font-black text-slate-700">
+                        {row.biaya_total > 0
+                          ? formatRupiah(row.biaya_total)
+                          : "-"}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>

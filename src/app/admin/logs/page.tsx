@@ -19,7 +19,6 @@ import {
   ShieldCheck,
   History,
   Clock,
-  User as UserIcon,
   Filter,
 } from "lucide-react";
 import { getInitials, cn } from "@/lib/utils";
@@ -56,7 +55,7 @@ export default function LogPage() {
       const data = Array.isArray(response.data.data)
         ? response.data.data
         : response.data;
-      setLogs(data); // Backend expected sort DESC
+      setLogs(data);
     } catch (error) {
       console.error("Gagal ambil logs", error);
     } finally {
@@ -87,7 +86,6 @@ export default function LogPage() {
     currentPage * itemsPerPage,
   );
 
-  // Reset page when filter changes
   useEffect(() => {
     setCurrentPage(1);
   }, [search, roleFilter]);
@@ -130,10 +128,10 @@ export default function LogPage() {
   return (
     <DashboardLayout requiredRole="admin">
       {/* HEADER SECTION */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 md:mb-10">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <ShieldCheck className="w-5 h-5 text-[#71C9CE]" />
+            <ShieldCheck className="w-4 h-4 text-[#71C9CE]" />
             <span className="text-xs font-bold text-[#71C9CE] uppercase tracking-widest">
               Audit Trail
             </span>
@@ -150,7 +148,7 @@ export default function LogPage() {
           onClick={fetchLogs}
           disabled={loading}
           variant="secondary"
-          className="shadow-sm border-gray-200"
+          className="shadow-sm border-gray-200 w-full md:w-auto"
         >
           <RefreshCw
             className={cn("w-4 h-4 mr-2", loading && "animate-spin")}
@@ -168,7 +166,7 @@ export default function LogPage() {
               placeholder="Cari aktivitas atau nama user..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="bg-white pl-12 h-12" // Override padding
+              className="bg-white pl-12 h-12"
             />
           </div>
 
@@ -189,9 +187,10 @@ export default function LogPage() {
         </div>
       </div>
 
-      {/* LOG TABLE CARD */}
+      {/* LOG LIST CARD */}
       <div className={cn(GLASS_CARD, "flex flex-col min-h-[500px]")}>
-        <div className="overflow-x-auto">
+        {/* === 1. DESKTOP VIEW (TABLE) === */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead className="bg-[#E3FDFD]/50 text-slate-500 font-bold uppercase text-[11px] tracking-wider border-b border-[#A6E3E9]/30">
               <tr>
@@ -208,16 +207,9 @@ export default function LogPage() {
                   <tr key={i} className="animate-pulse bg-white/30">
                     <td className="px-8 py-6">
                       <div className="h-4 w-32 bg-gray-200 rounded" />
-                      <div className="h-3 w-20 bg-gray-200 rounded mt-2" />
                     </td>
                     <td className="px-8">
-                      <div className="flex gap-3">
-                        <div className="w-10 h-10 bg-gray-200 rounded-full" />
-                        <div className="space-y-2">
-                          <div className="h-4 w-24 bg-gray-200 rounded" />
-                          <div className="h-3 w-12 bg-gray-200 rounded" />
-                        </div>
-                      </div>
+                      <div className="h-4 w-24 bg-gray-200 rounded" />
                     </td>
                     <td className="px-8">
                       <div className="h-4 w-64 bg-gray-200 rounded" />
@@ -226,19 +218,10 @@ export default function LogPage() {
                 ))
               ) : currentLogs.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="py-24 text-center">
-                    <div className="flex flex-col items-center justify-center gap-4 opacity-50">
-                      <div className="p-4 bg-slate-100 rounded-full">
-                        <History className="w-8 h-8 text-slate-400" />
-                      </div>
-                      <div>
-                        <p className="font-bold text-slate-600">
-                          Tidak ada log ditemukan
-                        </p>
-                        <p className="text-xs text-slate-400">
-                          Coba ubah filter pencarian Anda
-                        </p>
-                      </div>
+                  <td colSpan={3} className="py-24 text-center text-gray-400">
+                    <div className="flex flex-col items-center justify-center gap-3 opacity-50">
+                      <History className="w-8 h-8 text-slate-300" />
+                      <p>Tidak ada log ditemukan</p>
                     </div>
                   </td>
                 </tr>
@@ -252,7 +235,6 @@ export default function LogPage() {
                       key={log.id_log}
                       className="group hover:bg-white/60 transition-all duration-200"
                     >
-                      {/* Timestamp */}
                       <td className="px-8 py-5 whitespace-nowrap">
                         <div className="flex flex-col">
                           <span className="font-bold text-slate-700 text-sm">
@@ -275,7 +257,6 @@ export default function LogPage() {
                         </div>
                       </td>
 
-                      {/* User Info */}
                       <td className="px-8 py-5">
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#71C9CE] to-[#A6E3E9] flex items-center justify-center text-white text-xs font-bold shadow-sm shadow-[#71C9CE]/20">
@@ -296,7 +277,6 @@ export default function LogPage() {
                         </div>
                       </td>
 
-                      {/* Activity Detail */}
                       <td className="px-8 py-5">
                         <div className="flex items-start gap-3">
                           <div
@@ -320,8 +300,86 @@ export default function LogPage() {
           </table>
         </div>
 
+        {/* === 2. MOBILE VIEW (CARD LIST) === */}
+        <div className="md:hidden flex flex-col p-4 gap-4 bg-slate-50/50">
+          {loading ? (
+            [...Array(3)].map((_, i) => (
+              <div
+                key={i}
+                className="bg-white p-4 rounded-2xl animate-pulse space-y-3"
+              >
+                <div className="h-4 bg-gray-200 rounded w-1/3" />
+                <div className="h-6 bg-gray-200 rounded w-full" />
+                <div className="h-4 bg-gray-200 rounded w-1/2" />
+              </div>
+            ))
+          ) : currentLogs.length === 0 ? (
+            <div className="text-center py-10 text-gray-400">
+              <p>Tidak ada log ditemukan</p>
+            </div>
+          ) : (
+            currentLogs.map((log) => {
+              const style = getActivityStyle(log.aktivitas);
+              const Icon = style.icon;
+
+              return (
+                <div
+                  key={log.id_log}
+                  className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-3 relative"
+                >
+                  {/* Activity Badge */}
+                  <div className="absolute top-4 right-4">
+                    <span
+                      className={cn(
+                        "px-2 py-1 rounded-lg text-[10px] font-bold border uppercase",
+                        style.color,
+                      )}
+                    >
+                      {log.user?.role || "SYSTEM"}
+                    </span>
+                  </div>
+
+                  {/* User Info & Time */}
+                  <div className="flex items-center gap-3 pr-16">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#71C9CE] to-[#A6E3E9] flex items-center justify-center text-white text-xs font-bold shadow-md shadow-[#71C9CE]/20 shrink-0">
+                      {getInitials(log.user?.nama_lengkap || "?")}
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-800 text-sm">
+                        {log.user?.nama_lengkap || "Deleted User"}
+                      </h4>
+                      <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-bold uppercase mt-0.5">
+                        <Clock className="w-3 h-3" />
+                        {new Date(log.waktu_aktivitas).toLocaleString("id-ID", {
+                          day: "numeric",
+                          month: "short",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Activity Content */}
+                  <div className="flex items-start gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <Icon
+                      className={cn(
+                        "w-4 h-4 mt-0.5 shrink-0",
+                        style.color.split(" ")[0],
+                      )}
+                    />
+                    <p className="text-sm text-slate-600 font-medium leading-relaxed">
+                      {log.aktivitas}
+                    </p>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
         {/* FOOTER PAGINATION */}
-        <div className="mt-auto border-t border-[#A6E3E9]/30 p-6 bg-gradient-to-r from-[#E3FDFD]/30 to-white/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mt-auto border-t border-[#A6E3E9]/30 p-4 md:p-6 bg-gradient-to-r from-[#E3FDFD]/30 to-white/30 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs font-bold text-slate-400">
             Showing <span className="text-slate-800">{currentLogs.length}</span>{" "}
             of {filteredLogs.length} records
@@ -333,21 +391,21 @@ export default function LogPage() {
               size="sm"
               disabled={currentPage === 1 || loading}
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              className="h-9 px-3"
+              className="h-9 w-9 p-0"
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
 
-            <div className="px-4 py-2 bg-white rounded-xl text-xs font-black text-slate-700 border border-gray-100 shadow-sm">
-              Page {currentPage} / {totalPages || 1}
-            </div>
+            <span className="px-3 py-2 bg-white rounded-lg text-xs font-black text-slate-700 border border-gray-100 shadow-sm">
+              {currentPage} / {totalPages || 1}
+            </span>
 
             <Button
               variant="secondary"
               size="sm"
               disabled={currentPage >= totalPages || loading}
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              className="h-9 px-3"
+              className="h-9 w-9 p-0"
             >
               <ChevronRight className="w-4 h-4" />
             </Button>

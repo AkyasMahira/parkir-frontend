@@ -12,7 +12,6 @@ import {
   UserPlus,
   UserCog,
   Loader2,
-  CheckCircle2,
   AlertCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -56,7 +55,7 @@ export default function UserFormPage() {
             setForm({
               nama_lengkap: foundUser.nama_lengkap,
               username: foundUser.username,
-              password: "", // Kosongkan password demi keamanan
+              password: "", 
               role: foundUser.role,
             });
           } else {
@@ -80,24 +79,23 @@ export default function UserFormPage() {
     setErrorMsg(null);
 
     try {
+      const payload: any = { ...form };
+      // Hapus password jika kosong di mode edit
+      if (!isCreateMode && !payload.password) delete payload.password;
+
       if (isCreateMode) {
-        // CREATE
-        await api.post("/users", form);
+        await api.post("/users", payload);
       } else {
-        // UPDATE
-        const payload = { ...form };
-        if (!payload.password) delete (payload as any).password;
         await api.put(`/users/${params.id}`, payload);
       }
 
-      // Redirect setelah sukses
       router.push("/admin/users");
       router.refresh();
     } catch (error: any) {
       const msg =
         error.response?.data?.message || "Terjadi kesalahan pada server.";
       setErrorMsg(msg);
-      setLoading(false); // Stop loading only on error
+      setLoading(false);
     }
   };
 
@@ -131,21 +129,21 @@ export default function UserFormPage() {
 
         {/* MAIN CARD */}
         <div className={GLASS_CARD}>
-          {/* HEADER SECTION */}
-          <div className="p-8 border-b border-[#A6E3E9]/30 bg-gradient-to-r from-[#E3FDFD]/50 to-white/50">
-            <div className="flex items-center gap-5">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#71C9CE] to-[#A6E3E9] flex items-center justify-center text-white shadow-lg shadow-[#71C9CE]/30">
+          {/* HEADER SECTION - Responsive Padding */}
+          <div className="p-6 md:p-8 border-b border-[#A6E3E9]/30 bg-gradient-to-r from-[#E3FDFD]/50 to-white/50">
+            <div className="flex items-center gap-4 md:gap-5">
+              <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-[#71C9CE] to-[#A6E3E9] flex items-center justify-center text-white shadow-lg shadow-[#71C9CE]/30 shrink-0">
                 {isCreateMode ? (
-                  <UserPlus className="w-7 h-7" />
+                  <UserPlus className="w-6 h-6 md:w-7 md:h-7" />
                 ) : (
-                  <UserCog className="w-7 h-7" />
+                  <UserCog className="w-6 h-6 md:w-7 md:h-7" />
                 )}
               </div>
               <div>
-                <h1 className="text-2xl font-black text-slate-800 tracking-tight">
+                <h1 className="text-xl md:text-2xl font-black text-slate-800 tracking-tight">
                   {isCreateMode ? "Tambah User Baru" : "Edit Informasi User"}
                 </h1>
-                <p className="text-sm text-slate-500 font-medium mt-1">
+                <p className="text-xs md:text-sm text-slate-500 font-medium mt-1">
                   {isCreateMode
                     ? "Isi formulir lengkap untuk memberikan akses sistem."
                     : "Perbarui data profil atau reset password pengguna."}
@@ -154,8 +152,8 @@ export default function UserFormPage() {
             </div>
           </div>
 
-          {/* FORM SECTION */}
-          <form onSubmit={handleSubmit} className="p-8 space-y-6 bg-white/40">
+          {/* FORM SECTION - Responsive Padding */}
+          <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-6 bg-white/40">
             {/* Error Alert Box */}
             {errorMsg && (
               <div className="p-4 bg-red-50/80 border border-red-100 rounded-2xl flex items-start gap-3 animate-in slide-in-from-top-2">
@@ -207,7 +205,7 @@ export default function UserFormPage() {
             </div>
 
             <div className="pt-4 border-t border-gray-100/50">
-              <div className="bg-[#E3FDFD]/50 p-6 rounded-2xl border border-[#A6E3E9]/30">
+              <div className="bg-[#E3FDFD]/50 p-5 md:p-6 rounded-2xl border border-[#A6E3E9]/30">
                 <Input
                   label={
                     isCreateMode ? "Password Akun" : "Ubah Password (Opsional)"

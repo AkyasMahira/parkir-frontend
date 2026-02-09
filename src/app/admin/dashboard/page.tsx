@@ -17,9 +17,11 @@ import {
 import { formatRupiah, cn } from "@/lib/utils";
 import api from "@/lib/axios";
 
+// Style Constants
 const GLASS_CARD =
   "bg-white/60 backdrop-blur-xl border border-white/80 shadow-xl shadow-[#71C9CE]/5 rounded-[2rem]";
 
+// --- COMPONENT: STAT WIDGET ---
 const StatWidget = ({
   label,
   value,
@@ -50,7 +52,9 @@ const StatWidget = ({
       {loading ? (
         <div className="h-8 w-32 bg-gray-200 rounded animate-pulse" />
       ) : (
-        <h2 className="text-3xl font-black text-slate-800">{value}</h2>
+        <h2 className="text-2xl md:text-3xl font-black text-slate-800 break-words">
+          {typeof value === "number" ? value.toLocaleString("id-ID") : value}
+        </h2>
       )}
     </div>
 
@@ -67,37 +71,7 @@ const StatWidget = ({
   </div>
 );
 
-const ActionCard = ({ title, desc, href, btnText, colorClass }: any) => (
-  <div
-    className={cn(
-      GLASS_CARD,
-      "p-8 flex flex-col justify-between h-full relative overflow-hidden",
-    )}
-  >
-    {/* Decorative Blob */}
-    <div
-      className={cn(
-        "absolute -right-10 -top-10 w-40 h-40 rounded-full blur-3xl opacity-30",
-        colorClass,
-      )}
-    />
-
-    <div className="relative z-10">
-      <h3 className="text-xl font-black text-slate-800 mb-2">{title}</h3>
-      <p className="text-sm text-gray-500 font-medium leading-relaxed mb-6">
-        {desc}
-      </p>
-    </div>
-
-    <Link href={href} className="relative z-10">
-      <button className="w-full py-4 rounded-2xl bg-slate-800 text-white font-bold text-sm shadow-lg hover:shadow-xl hover:bg-slate-900 transition-all flex items-center justify-center gap-2 group">
-        {btnText}
-        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-      </button>
-    </Link>
-  </div>
-);
-
+// --- MAIN PAGE ---
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
     users: 0,
@@ -128,15 +102,17 @@ export default function AdminDashboard() {
   return (
     <DashboardLayout requiredRole="admin">
       {/* HEADER SECTION */}
-      <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div className="mb-8 md:mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-black text-slate-800 tracking-tight mb-1">
+          <h1 className="text-3xl md:text-4xl font-black text-slate-800 tracking-tight mb-1">
             Dashboard
           </h1>
-          <p className="text-gray-500 font-medium">Welcome back, Admin 👋</p>
+          <p className="text-gray-500 font-medium text-sm md:text-base">
+            Welcome back, Admin 👋
+          </p>
         </div>
 
-        {/* Search Bar Visual (Non-functional, for layout match) */}
+        {/* Status Badge (Hidden on very small screens if needed, kept for now) */}
         <div className="hidden md:flex items-center gap-4">
           <div className="px-4 py-2 bg-white/50 rounded-full border border-white shadow-sm text-xs font-bold text-[#71C9CE]">
             Daily Report Available
@@ -144,49 +120,52 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-full">
-        {/* LEFT COLUMN (2/3 Width) */}
-        <div className="lg:col-span-2 space-y-8">
-          {/* Main Hero Card (Mirip "Next Game") */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 h-full">
+        {/* LEFT COLUMN (2/3 Width on Desktop) */}
+        <div className="lg:col-span-2 space-y-6 md:space-y-8">
+          {/* Main Hero Card */}
           <div
             className={cn(
               GLASS_CARD,
-              "p-8 md:p-10 relative overflow-hidden bg-gradient-to-br from-white/80 to-[#E3FDFD]/50",
+              "p-6 md:p-10 relative overflow-hidden bg-gradient-to-br from-white/80 to-[#E3FDFD]/50",
             )}
           >
             <div className="flex flex-col md:flex-row justify-between items-center gap-8 relative z-10">
-              <div className="space-y-4 max-w-md">
-                <div className="flex items-center gap-2 text-[#71C9CE] font-bold text-xs uppercase tracking-widest">
+              <div className="space-y-4 max-w-md w-full text-center md:text-left">
+                <div className="flex items-center justify-center md:justify-start gap-2 text-[#71C9CE] font-bold text-xs uppercase tracking-widest">
                   <Activity className="w-4 h-4" /> System Overview
                 </div>
-                <h2 className="text-3xl md:text-4xl font-black text-slate-800 leading-tight">
-                  Pantau Transaksi <br />{" "}
+                <h2 className="text-2xl md:text-4xl font-black text-slate-800 leading-tight">
+                  Pantau Transaksi <br className="hidden md:block" />{" "}
                   <span className="text-[#71C9CE]">Real-Time</span>
                 </h2>
-                <p className="text-gray-500 font-medium">
+                <p className="text-gray-500 font-medium text-sm md:text-base">
                   Kelola tarif parkir, monitor pendapatan, dan manajemen user
                   dalam satu panel terintegrasi.
                 </p>
-                <Link href="/admin/logs">
-                  <button className="mt-2 px-8 py-3 bg-[#71C9CE] hover:bg-[#5dbbc0] text-white rounded-xl font-bold shadow-lg shadow-[#71C9CE]/30 transition-all">
-                    Lihat Log Aktivitas
-                  </button>
-                </Link>
+                <div className="pt-2">
+                  <Link href="/admin/logs" className="block md:inline-block">
+                    <button className="w-full md:w-auto px-8 py-3 bg-[#71C9CE] hover:bg-[#5dbbc0] text-white rounded-xl font-bold shadow-lg shadow-[#71C9CE]/30 transition-all">
+                      Lihat Log Aktivitas
+                    </button>
+                  </Link>
+                </div>
               </div>
-              {/* Abstract 3D Shapes (CSS) */}
-              <div className="w-32 h-32 md:w-48 md:h-48 bg-gradient-to-tr from-[#71C9CE] to-[#A6E3E9] rounded-[2rem] shadow-2xl rotate-12 flex items-center justify-center">
+
+              {/* Abstract 3D Shapes (Wallet Icon) - HIDDEN ON MOBILE */}
+              <div className="hidden md:flex w-32 h-32 md:w-48 md:h-48 bg-gradient-to-tr from-[#71C9CE] to-[#A6E3E9] rounded-[2rem] shadow-2xl rotate-12 items-center justify-center shrink-0">
                 <Wallet className="w-16 h-16 text-white" />
               </div>
             </div>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Stats Grid (Pendapatan & Transaksi) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <StatWidget
               label="Total Pendapatan"
               value={formatRupiah(stats.pendapatan)}
               subValue="+12% from last week"
-              icon={Wallet}
+              icon={Wallet} // Icon kecil di dalam widget tetap ada
               loading={loading}
             />
             <StatWidget
@@ -199,30 +178,36 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* RIGHT COLUMN (1/3 Width) */}
+        {/* RIGHT COLUMN (1/3 Width on Desktop) */}
         <div className="space-y-6">
           {/* Profile / User Card */}
-          <div className={cn(GLASS_CARD, "p-8 text-center")}>
-            <div className="w-20 h-20 mx-auto bg-gradient-to-br from-[#71C9CE] to-[#A6E3E9] rounded-full p-1 shadow-lg mb-4">
+          <div className={cn(GLASS_CARD, "p-6 md:p-8 text-center")}>
+            <div className="w-16 h-16 md:w-20 md:h-20 mx-auto bg-gradient-to-br from-[#71C9CE] to-[#A6E3E9] rounded-full p-1 shadow-lg mb-4">
               <div className="w-full h-full bg-white rounded-full flex items-center justify-center">
-                <Users className="w-8 h-8 text-[#71C9CE]" />
+                <Users className="w-6 h-6 md:w-8 md:h-8 text-[#71C9CE]" />
               </div>
             </div>
-            <h3 className="text-xl font-black text-slate-800">
-              {stats.users} Users
-            </h3>
+
+            {loading ? (
+              <div className="h-8 w-24 bg-gray-200 rounded animate-pulse mx-auto mb-1" />
+            ) : (
+              <h3 className="text-xl font-black text-slate-800">
+                {stats.users} Users
+              </h3>
+            )}
+
             <p className="text-gray-400 text-sm font-medium mb-6">
               Registered Officers
             </p>
 
             <Link href="/admin/users/create">
-              <button className="w-full py-3 rounded-xl border-2 border-[#71C9CE] text-[#71C9CE] font-bold hover:bg-[#71C9CE] hover:text-white transition-all flex items-center justify-center gap-2">
+              <button className="w-full py-3 rounded-xl border-2 border-[#71C9CE] text-[#71C9CE] font-bold hover:bg-[#71C9CE] hover:text-white transition-all flex items-center justify-center gap-2 text-sm">
                 <Plus className="w-4 h-4" /> Add New User
               </button>
             </Link>
           </div>
 
-          {/* Quick Config */}
+          {/* Quick Config Card */}
           <div className={cn(GLASS_CARD, "p-6 bg-[#71C9CE] text-white")}>
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
