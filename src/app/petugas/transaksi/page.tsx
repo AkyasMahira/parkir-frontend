@@ -14,34 +14,26 @@ import {
   Loader2,
   CheckCircle2,
   AlertCircle,
-  Zap,
   Banknote,
+  ScanLine,
 } from "lucide-react";
 import { useReactToPrint } from "react-to-print";
 import { formatRupiah, cn } from "@/lib/utils";
 import api from "@/lib/axios";
+import { QRCodeSVG } from "qrcode.react";
+import { Scanner } from "@yudiel/react-qr-scanner";
 
-// Style Constants
 const GLASS_CARD =
   "bg-white/70 backdrop-blur-xl border border-white/40 shadow-xl shadow-[#71C9CE]/5 rounded-[2rem] overflow-hidden";
 
-/* =========================
-   BACKGROUND DECORATION (Teal Palette)
-   ========================= */
 const BackgroundDecoration = () => (
   <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none bg-[#F0FBFC]">
-    {/* Gradient Blob Kiri Atas */}
     <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#71C9CE]/20 rounded-full blur-[100px] mix-blend-multiply animate-blob" />
-    {/* Gradient Blob Kanan Bawah */}
     <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#A6E3E9]/20 rounded-full blur-[100px] mix-blend-multiply animate-blob animation-delay-2000" />
-    {/* Gradient Blob Tengah */}
     <div className="absolute top-[20%] left-[30%] w-[400px] h-[400px] bg-[#CBF1F5]/30 rounded-full blur-[100px] mix-blend-multiply animate-blob animation-delay-4000" />
   </div>
 );
 
-/* =========================
-   1. KOMPONEN STRUK PARKIR
-   ========================= */
 const StrukParkir = ({ data, componentRef }: any) => {
   if (!data) return null;
 
@@ -49,76 +41,80 @@ const StrukParkir = ({ data, componentRef }: any) => {
     <div className="hidden">
       <div
         ref={componentRef}
-        className="p-2 font-mono text-[10px] w-[58mm] leading-tight"
+        className="p-4 font-mono w-[58mm] leading-tight text-black bg-white"
       >
-        <div className="text-center font-bold mb-2 uppercase">
-          COACHPRO PARKING
-          <br />
-          <span className="font-normal capitalize">Smart System Area</span>
+        <div className="text-center mb-4">
+          <h2 className="font-bold text-[14px] uppercase mb-1">SiParkir</h2>
+          <p className="text-[10px] uppercase tracking-wider">
+            Smart System Area
+          </p>
         </div>
-        <div className="border-b border-dashed border-black my-2" />
-        <table className="w-full">
+
+        <div className="flex flex-col items-center justify-center mb-3">
+          <QRCodeSVG value={data.struk_id} size={110} level="H" />
+          <p className="font-bold text-[11px] mt-2 tracking-widest">
+            {data.struk_id}
+          </p>
+        </div>
+
+        <div className="border-b-[1.5px] border-dashed border-black my-3" />
+
+        <table className="w-full text-[10px]">
           <tbody>
             <tr>
-              <td className="py-0.5">Tiket ID</td>
-              <td className="font-bold py-0.5 text-right">{data.struk_id}</td>
+              <td className="py-1 align-top w-[40%]">Plat No</td>
+              <td className="font-bold py-1 text-right">{data.plat_nomor}</td>
             </tr>
             <tr>
-              <td className="py-0.5">Plat No</td>
-              <td className="font-bold py-0.5 text-right">{data.plat_nomor}</td>
-            </tr>
-            <tr>
-              <td className="py-0.5">Masuk</td>
-              <td className="py-0.5 text-right">{data.waktu_masuk}</td>
+              <td className="py-1 align-top">Masuk</td>
+              <td className="py-1 text-right">{data.waktu_masuk}</td>
             </tr>
             {data.waktu_keluar && (
               <>
                 <tr>
-                  <td className="py-0.5">Keluar</td>
-                  <td className="py-0.5 text-right">{data.waktu_keluar}</td>
+                  <td className="py-1 align-top">Keluar</td>
+                  <td className="py-1 text-right">{data.waktu_keluar}</td>
                 </tr>
                 <tr>
-                  <td className="py-0.5">Durasi</td>
-                  <td className="py-0.5 text-right">{data.durasi}</td>
+                  <td className="py-1 align-top">Durasi</td>
+                  <td className="py-1 text-right">{data.durasi}</td>
                 </tr>
               </>
             )}
           </tbody>
         </table>
-        <div className="border-b border-dashed border-black my-2" />
+
+        <div className="border-b-[1.5px] border-dashed border-black my-3" />
+
         {(data.biaya !== undefined || data.biaya_total !== undefined) && (
-          <div className="flex justify-between font-bold text-sm mb-2">
-            <span>TOTAL</span>
-            <span>{formatRupiah(data.biaya || data.biaya_total || 0)}</span>
+          <div className="flex justify-between items-center mb-2">
+            <span className="font-bold text-[11px]">TOTAL</span>
+            <span className="font-bold text-[13px]">
+              {formatRupiah(data.biaya || data.biaya_total || 0)}
+            </span>
           </div>
         )}
-        <div className="text-center mt-4 text-[8px] text-gray-600">
-          SIMPAN TIKET INI
-          <br />
-          HILANG TIKET DENDA RP 50.000
+
+        <div className="text-center mt-5 text-[9px]">
+          <p>Terima Kasih</p>
+          <p>Simpan tiket ini sebagai bukti parkir</p>
+          <p className="font-bold mt-1">HILANG TIKET DENDA RP 50.000</p>
         </div>
       </div>
     </div>
   );
 };
 
-/* =========================
-   2. KOMPONEN MODAL QRIS (GLASS STYLE)
-   ========================= */
 const QrisModal = ({ data, onClose }: { data: any; onClose: () => void }) => {
   if (!data) return null;
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 animate-in fade-in duration-200">
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-[#0F172A]/40 backdrop-blur-md transition-opacity"
         onClick={onClose}
       />
-
-      {/* Modal Content */}
       <div className="relative bg-white/90 backdrop-blur-2xl border border-white/50 rounded-[2rem] shadow-2xl max-w-sm w-full overflow-hidden scale-100 animate-in zoom-in-95 duration-200">
-        {/* Header Gradient */}
         <div className="p-5 bg-gradient-to-r from-[#E3FDFD] to-white border-b border-[#A6E3E9]/50 flex justify-between items-center">
           <h3 className="font-bold text-slate-800 flex items-center gap-2">
             <div className="p-1.5 bg-white rounded-lg shadow-sm">
@@ -136,7 +132,6 @@ const QrisModal = ({ data, onClose }: { data: any; onClose: () => void }) => {
 
         <div className="p-8 flex flex-col items-center text-center">
           <div className="bg-white p-4 border border-slate-100 rounded-3xl shadow-inner mb-6 relative">
-            {/* Decor Corners */}
             <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-[#71C9CE] rounded-tl-lg" />
             <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-[#71C9CE] rounded-tr-lg" />
             <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-[#71C9CE] rounded-bl-lg" />
@@ -172,21 +167,17 @@ const QrisModal = ({ data, onClose }: { data: any; onClose: () => void }) => {
   );
 };
 
-/* =========================
-   3. HALAMAN UTAMA (TRANSAKSI)
-   ========================= */
 export default function TransaksiPage() {
   const [tarifs, setTarifs] = useState<any[]>([]);
   const [areas, setAreas] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
 
-  // Notification State
   const [notification, setNotification] = useState<{
     type: "success" | "error";
     msg: string;
   } | null>(null);
 
-  // Forms State
   const [formIn, setFormIn] = useState({
     plat: "",
     jenis: "",
@@ -222,7 +213,6 @@ export default function TransaksiPage() {
       setTarifs(resTarif.data.data);
       setAreas(resArea.data.data);
 
-      // Set default select values
       if (resTarif.data.data.length && !formIn.jenis) {
         setFormIn((f) => ({
           ...f,
@@ -254,7 +244,6 @@ export default function TransaksiPage() {
     }
   };
 
-  // CHECK-IN HANDLER
   const handleCheckIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -274,7 +263,6 @@ export default function TransaksiPage() {
     }
   };
 
-  // CHECK-OUT HANDLER
   const handleCheckOut = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -302,7 +290,6 @@ export default function TransaksiPage() {
     }
   };
 
-  // POLLING LOGIC
   const startPolling = (orderId: string, trxId: number) => {
     stopPolling();
     pollingRef.current = setInterval(async () => {
@@ -324,12 +311,20 @@ export default function TransaksiPage() {
     if (pollingRef.current) clearInterval(pollingRef.current);
   };
 
+  // Handler untuk hasil scan QR
+  const handleScanResult = (result: any) => {
+    if (result && result.length > 0) {
+      setFormOut({ ...formOut, strukId: result[0].rawValue });
+      setIsScanning(false);
+      showNotif("success", "Berhasil scan struk!");
+    }
+  };
+
   return (
     <DashboardLayout requiredRole="petugas">
       <BackgroundDecoration />
       <StrukParkir data={strukData} componentRef={strukRef} />
 
-      {/* QRIS Modal */}
       {modalQris && (
         <QrisModal
           data={modalQris}
@@ -340,7 +335,6 @@ export default function TransaksiPage() {
         />
       )}
 
-      {/* Notification Toast */}
       {notification && (
         <div
           className={cn(
@@ -373,7 +367,6 @@ export default function TransaksiPage() {
         </div>
       )}
 
-      {/* Header Section */}
       <div className="relative mb-10 z-10">
         <h1 className="text-3xl font-black text-slate-800 tracking-tight">
           Transaksi <span className="text-[#71C9CE]">Kendaraan</span>
@@ -384,7 +377,6 @@ export default function TransaksiPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-10 items-start">
-        {/* === CARD CHECK-IN (TEAL THEME) === */}
         <div
           className={cn(
             GLASS_CARD,
@@ -392,7 +384,6 @@ export default function TransaksiPage() {
           )}
         >
           <div className="relative p-8 bg-white/40 backdrop-blur-xl rounded-[1.8rem] h-full">
-            {/* Header Card */}
             <div className="flex items-center gap-4 mb-8">
               <div className="bg-gradient-to-br from-[#71C9CE] to-[#A6E3E9] p-3.5 rounded-2xl text-white shadow-lg shadow-[#71C9CE]/30">
                 <Ticket className="w-6 h-6" />
@@ -448,7 +439,6 @@ export default function TransaksiPage() {
                 />
               </div>
 
-              {/* Info Tarif Box */}
               <div className="bg-[#E3FDFD]/60 border border-[#A6E3E9]/50 p-5 rounded-2xl flex items-center gap-4">
                 <div className="p-2.5 bg-white rounded-xl text-[#71C9CE] shadow-sm">
                   <CarFront className="w-5 h-5" />
@@ -477,7 +467,6 @@ export default function TransaksiPage() {
           </div>
         </div>
 
-        {/* === CARD CHECK-OUT (TEAL THEME) === */}
         <div
           className={cn(
             GLASS_CARD,
@@ -485,7 +474,6 @@ export default function TransaksiPage() {
           )}
         >
           <div className="relative p-8 bg-white/40 backdrop-blur-xl rounded-[1.8rem] h-full">
-            {/* Header Card */}
             <div className="flex items-center gap-4 mb-8">
               <div className="bg-gradient-to-br from-slate-700 to-slate-800 p-3.5 rounded-2xl text-white shadow-lg shadow-slate-500/30">
                 <LogOut className="w-6 h-6" />
@@ -503,17 +491,48 @@ export default function TransaksiPage() {
                 <label className="text-xs font-bold text-slate-500 ml-1">
                   SCAN TIKET / ID
                 </label>
-                <Input
-                  placeholder="Scan disini..."
-                  value={formOut.strukId}
-                  onChange={(e) =>
-                    setFormOut({
-                      ...formOut,
-                      strukId: e.target.value.toUpperCase(),
-                    })
-                  }
-                  className="font-mono text-lg bg-white h-14 border-transparent focus:border-slate-400"
-                />
+
+                {/* Input dengan tombol scan */}
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Scan disini..."
+                    value={formOut.strukId}
+                    onChange={(e) =>
+                      setFormOut({
+                        ...formOut,
+                        strukId: e.target.value.toUpperCase(),
+                      })
+                    }
+                    className="font-mono text-lg bg-white h-14 border-transparent focus:border-slate-400 w-full"
+                  />
+                  <Button
+                    type="button"
+                    onClick={() => setIsScanning(!isScanning)}
+                    className={cn(
+                      "h-14 w-14 rounded-2xl flex-shrink-0 transition-all shadow-md",
+                      isScanning
+                        ? "bg-red-500 text-white hover:bg-red-600 shadow-red-500/20"
+                        : "bg-slate-800 text-white hover:bg-slate-900 shadow-slate-500/20",
+                    )}
+                  >
+                    {/* Tambahkan w-8 h-8 untuk memperbesar icon */}
+                    {isScanning ? (
+                      <X className="w-8 h-8" />
+                    ) : (
+                      <ScanLine className="w-8 h-8" />
+                    )}
+                  </Button>
+                </div>
+
+                {/* Tampilan Scanner */}
+                {isScanning && (
+                  <div className="mt-4 rounded-xl overflow-hidden border-2 border-[#71C9CE] shadow-lg animate-in fade-in zoom-in-95 duration-200">
+                    <Scanner
+                      onScan={handleScanResult}
+                      components={{ audio: false, finder: true }}
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="space-y-3">
