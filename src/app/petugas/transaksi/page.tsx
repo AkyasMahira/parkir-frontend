@@ -26,6 +26,8 @@ import { Scanner } from "@yudiel/react-qr-scanner";
 const GLASS_CARD =
   "bg-white/70 backdrop-blur-xl border border-white/40 shadow-xl shadow-[#71C9CE]/5 rounded-[2rem] overflow-hidden";
 
+// --- Components ---
+
 const BackgroundDecoration = () => (
   <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none bg-[#F0FBFC]">
     <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#71C9CE]/20 rounded-full blur-[100px] mix-blend-multiply animate-blob" />
@@ -36,7 +38,6 @@ const BackgroundDecoration = () => (
 
 const StrukParkir = ({ data, componentRef }: any) => {
   if (!data) return null;
-
   return (
     <div className="hidden">
       <div
@@ -49,16 +50,13 @@ const StrukParkir = ({ data, componentRef }: any) => {
             Smart System Area
           </p>
         </div>
-
         <div className="flex flex-col items-center justify-center mb-3">
           <QRCodeSVG value={data.struk_id} size={110} level="H" />
           <p className="font-bold text-[11px] mt-2 tracking-widest">
             {data.struk_id}
           </p>
         </div>
-
         <div className="border-b-[1.5px] border-dashed border-black my-3" />
-
         <table className="w-full text-[10px]">
           <tbody>
             <tr>
@@ -69,32 +67,9 @@ const StrukParkir = ({ data, componentRef }: any) => {
               <td className="py-1 align-top">Masuk</td>
               <td className="py-1 text-right">{data.waktu_masuk}</td>
             </tr>
-            {data.waktu_keluar && (
-              <>
-                <tr>
-                  <td className="py-1 align-top">Keluar</td>
-                  <td className="py-1 text-right">{data.waktu_keluar}</td>
-                </tr>
-                <tr>
-                  <td className="py-1 align-top">Durasi</td>
-                  <td className="py-1 text-right">{data.durasi}</td>
-                </tr>
-              </>
-            )}
           </tbody>
         </table>
-
         <div className="border-b-[1.5px] border-dashed border-black my-3" />
-
-        {(data.biaya !== undefined || data.biaya_total !== undefined) && (
-          <div className="flex justify-between items-center mb-2">
-            <span className="font-bold text-[11px]">TOTAL</span>
-            <span className="font-bold text-[13px]">
-              {formatRupiah(data.biaya || data.biaya_total || 0)}
-            </span>
-          </div>
-        )}
-
         <div className="text-center mt-5 text-[9px]">
           <p>Terima Kasih</p>
           <p>Simpan tiket ini sebagai bukti parkir</p>
@@ -107,14 +82,13 @@ const StrukParkir = ({ data, componentRef }: any) => {
 
 const QrisModal = ({ data, onClose }: { data: any; onClose: () => void }) => {
   if (!data) return null;
-
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 animate-in fade-in duration-200">
       <div
-        className="absolute inset-0 bg-[#0F172A]/40 backdrop-blur-md transition-opacity"
+        className="absolute inset-0 bg-[#0F172A]/40 backdrop-blur-md"
         onClick={onClose}
       />
-      <div className="relative bg-white/90 backdrop-blur-2xl border border-white/50 rounded-[2rem] shadow-2xl max-w-sm w-full overflow-hidden scale-100 animate-in zoom-in-95 duration-200">
+      <div className="relative bg-white/90 backdrop-blur-2xl border border-white/50 rounded-[2rem] shadow-2xl max-w-sm w-full overflow-hidden animate-in zoom-in-95">
         <div className="p-5 bg-gradient-to-r from-[#E3FDFD] to-white border-b border-[#A6E3E9]/50 flex justify-between items-center">
           <h3 className="font-bold text-slate-800 flex items-center gap-2">
             <div className="p-1.5 bg-white rounded-lg shadow-sm">
@@ -124,40 +98,26 @@ const QrisModal = ({ data, onClose }: { data: any; onClose: () => void }) => {
           </h3>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-white rounded-full transition-colors text-slate-400 hover:text-slate-600"
+            className="p-2 hover:bg-white rounded-full text-slate-400"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
-
         <div className="p-8 flex flex-col items-center text-center">
           <div className="bg-white p-4 border border-slate-100 rounded-3xl shadow-inner mb-6 relative">
-            <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-[#71C9CE] rounded-tl-lg" />
-            <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-[#71C9CE] rounded-tr-lg" />
-            <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-[#71C9CE] rounded-bl-lg" />
-            <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-[#71C9CE] rounded-br-lg" />
-
-            {data.qr_image ? (
-              <img
-                src={data.qr_image}
-                alt="QR Code"
-                className="w-48 h-48 object-contain mix-blend-multiply"
-              />
-            ) : (
-              <div className="w-48 h-48 bg-gray-50 flex items-center justify-center text-gray-400 text-xs rounded-xl">
-                [QR Image Placeholder]
-              </div>
-            )}
+            <img
+              src={data.qr_image}
+              alt="QR Code"
+              className="w-48 h-48 object-contain mix-blend-multiply"
+            />
           </div>
-
           <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">
             Total Tagihan
           </div>
           <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#71C9CE] to-[#4AA3A8] mb-8">
             {formatRupiah(data.amount || 0)}
           </div>
-
-          <div className="flex items-center gap-3 text-[#71C9CE] bg-[#E3FDFD] px-6 py-3 rounded-2xl text-sm font-bold animate-pulse border border-[#A6E3E9]">
+          <div className="flex items-center gap-3 text-[#71C9CE] bg-[#E3FDFD] px-6 py-3 rounded-2xl text-sm font-bold animate-pulse">
             <Loader2 className="w-4 h-4 animate-spin" />
             Menunggu Pembayaran...
           </div>
@@ -167,23 +127,19 @@ const QrisModal = ({ data, onClose }: { data: any; onClose: () => void }) => {
   );
 };
 
+// --- Main Page ---
+
 export default function TransaksiPage() {
   const [tarifs, setTarifs] = useState<any[]>([]);
   const [areas, setAreas] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
-
   const [notification, setNotification] = useState<{
     type: "success" | "error";
     msg: string;
   } | null>(null);
 
-  const [formIn, setFormIn] = useState({
-    plat: "",
-    jenis: "",
-    area: "",
-  });
-
+  const [formIn, setFormIn] = useState({ plat: "", jenis: "", area: "" });
   const [formOut, setFormOut] = useState({
     strukId: "",
     metode: "cash",
@@ -195,9 +151,7 @@ export default function TransaksiPage() {
   const strukRef = useRef<HTMLDivElement>(null);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handlePrint = useReactToPrint({
-    contentRef: strukRef,
-  });
+  const handlePrint = useReactToPrint({ contentRef: strukRef });
 
   useEffect(() => {
     fetchInitialData();
@@ -212,16 +166,13 @@ export default function TransaksiPage() {
       ]);
       setTarifs(resTarif.data.data);
       setAreas(resArea.data.data);
-
-      if (resTarif.data.data.length && !formIn.jenis) {
+      if (resTarif.data.data.length)
         setFormIn((f) => ({
           ...f,
           jenis: resTarif.data.data[0].jenis_kendaraan,
         }));
-      }
-      if (resArea.data.data.length && !formIn.area) {
+      if (resArea.data.data.length)
         setFormIn((f) => ({ ...f, area: resArea.data.data[0].id_area }));
-      }
     } catch (err) {
       console.error(err);
     }
@@ -236,9 +187,7 @@ export default function TransaksiPage() {
     try {
       const res = await api.get(`/transaksi/struk/${id}`);
       setStrukData(res.data.data);
-      setTimeout(() => {
-        handlePrint?.();
-      }, 500);
+      setTimeout(() => handlePrint?.(), 500);
     } catch {
       showNotif("error", "Gagal load struk");
     }
@@ -255,7 +204,7 @@ export default function TransaksiPage() {
       });
       showNotif("success", "Kendaraan berhasil Check-in");
       setFormIn({ ...formIn, plat: "" });
-      cetakStruk(res.data.data.id_transaksi);
+      cetakStruk(res.data.data.id_transaksi); // Tetap cetak saat masuk
     } catch (err: any) {
       showNotif("error", err.response?.data?.message || "Check-in gagal");
     } finally {
@@ -277,11 +226,11 @@ export default function TransaksiPage() {
       if (!res.data.is_qris) {
         showNotif("success", "Transaksi Selesai.");
         setFormOut({ strukId: "", metode: "cash", foto: null });
-        cetakStruk(res.data.data.id_transaksi);
+        // cetakStruk dihapus dari sini
       } else {
         const totalBayar = res.data.nominal || res.data.data?.biaya_total || 0;
         setModalQris({ ...res.data, amount: totalBayar });
-        startPolling(res.data.order_id, res.data.data.id_transaksi);
+        startPolling(res.data.order_id);
       }
     } catch (err: any) {
       showNotif("error", err.response?.data?.message || "Checkout gagal");
@@ -290,7 +239,7 @@ export default function TransaksiPage() {
     }
   };
 
-  const startPolling = (orderId: string, trxId: number) => {
+  const startPolling = (orderId: string) => {
     stopPolling();
     pollingRef.current = setInterval(async () => {
       try {
@@ -298,8 +247,9 @@ export default function TransaksiPage() {
         if (res.data.status === "paid") {
           stopPolling();
           setModalQris(null);
+          setFormOut({ strukId: "", metode: "cash", foto: null });
           showNotif("success", "Pembayaran QRIS Berhasil!");
-          cetakStruk(trxId);
+          // cetakStruk dihapus dari sini
         }
       } catch (error) {
         console.error(error);
@@ -311,9 +261,8 @@ export default function TransaksiPage() {
     if (pollingRef.current) clearInterval(pollingRef.current);
   };
 
-  // Handler untuk hasil scan QR
   const handleScanResult = (result: any) => {
-    if (result && result.length > 0) {
+    if (result?.length > 0) {
       setFormOut({ ...formOut, strukId: result[0].rawValue });
       setIsScanning(false);
       showNotif("success", "Berhasil scan struk!");
@@ -338,7 +287,7 @@ export default function TransaksiPage() {
       {notification && (
         <div
           className={cn(
-            "fixed top-6 right-6 z-[100] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-xl border animate-in slide-in-from-right duration-300 backdrop-blur-xl",
+            "fixed top-6 right-6 z-[100] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-xl border animate-in slide-in-from-right backdrop-blur-xl",
             notification.type === "success"
               ? "bg-[#E3FDFD]/90 border-[#A6E3E9] text-[#4AA3A8]"
               : "bg-red-50/90 border-red-100 text-red-600",
@@ -377,13 +326,14 @@ export default function TransaksiPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-10 items-start">
+        {/* Check-In Card */}
         <div
           className={cn(
             GLASS_CARD,
             "p-1 bg-gradient-to-br from-[#71C9CE]/10 to-transparent",
           )}
         >
-          <div className="relative p-8 bg-white/40 backdrop-blur-xl rounded-[1.8rem] h-full">
+          <div className="relative p-8 bg-white/40 backdrop-blur-xl rounded-[1.8rem]">
             <div className="flex items-center gap-4 mb-8">
               <div className="bg-gradient-to-br from-[#71C9CE] to-[#A6E3E9] p-3.5 rounded-2xl text-white shadow-lg shadow-[#71C9CE]/30">
                 <Ticket className="w-6 h-6" />
@@ -395,7 +345,6 @@ export default function TransaksiPage() {
                 </p>
               </div>
             </div>
-
             <form onSubmit={handleCheckIn} className="space-y-6">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-500 ml-1">
@@ -408,10 +357,9 @@ export default function TransaksiPage() {
                     setFormIn({ ...formIn, plat: e.target.value.toUpperCase() })
                   }
                   required
-                  className="uppercase text-lg font-bold tracking-widest bg-white h-14 border-transparent focus:border-[#71C9CE]"
+                  className="uppercase text-lg font-bold tracking-widest bg-white h-14"
                 />
               </div>
-
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <Select
                   label="Jenis Kendaraan"
@@ -438,28 +386,10 @@ export default function TransaksiPage() {
                   className="bg-white h-12"
                 />
               </div>
-
-              <div className="bg-[#E3FDFD]/60 border border-[#A6E3E9]/50 p-5 rounded-2xl flex items-center gap-4">
-                <div className="p-2.5 bg-white rounded-xl text-[#71C9CE] shadow-sm">
-                  <CarFront className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-[10px] text-slate-500 font-bold uppercase">
-                    Tarif per jam
-                  </p>
-                  <p className="font-black text-slate-800 text-xl">
-                    {formatRupiah(
-                      tarifs.find((t) => t.jenis_kendaraan === formIn.jenis)
-                        ?.tarif_per_jam || 0,
-                    )}
-                  </p>
-                </div>
-              </div>
-
               <Button
                 type="submit"
                 isLoading={loading}
-                className="w-full bg-[#71C9CE] hover:bg-[#5dbbc0] text-white shadow-xl shadow-[#71C9CE]/20 h-14 rounded-2xl text-base font-bold transition-all hover:-translate-y-1"
+                className="w-full bg-[#71C9CE] hover:bg-[#5dbbc0] text-white h-14 rounded-2xl font-bold"
               >
                 Cetak Tiket Masuk
               </Button>
@@ -467,13 +397,14 @@ export default function TransaksiPage() {
           </div>
         </div>
 
+        {/* Check-Out Card */}
         <div
           className={cn(
             GLASS_CARD,
-            "p-1 bg-gradient-to-br from-[#A6E3E9]/10 to-transparent",
+            "p-1 bg-gradient-to-br from-slate-200 to-transparent",
           )}
         >
-          <div className="relative p-8 bg-white/40 backdrop-blur-xl rounded-[1.8rem] h-full">
+          <div className="relative p-8 bg-white/40 backdrop-blur-xl rounded-[1.8rem]">
             <div className="flex items-center gap-4 mb-8">
               <div className="bg-gradient-to-br from-slate-700 to-slate-800 p-3.5 rounded-2xl text-white shadow-lg shadow-slate-500/30">
                 <LogOut className="w-6 h-6" />
@@ -485,14 +416,11 @@ export default function TransaksiPage() {
                 </p>
               </div>
             </div>
-
             <form onSubmit={handleCheckOut} className="space-y-6">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-500 ml-1">
                   SCAN TIKET / ID
                 </label>
-
-                {/* Input dengan tombol scan */}
                 <div className="flex gap-2">
                   <Input
                     placeholder="Scan disini..."
@@ -503,30 +431,25 @@ export default function TransaksiPage() {
                         strukId: e.target.value.toUpperCase(),
                       })
                     }
-                    className="font-mono text-lg bg-white h-14 border-transparent focus:border-slate-400 w-full"
+                    className="font-mono text-lg bg-white h-14 w-full"
                   />
                   <Button
                     type="button"
                     onClick={() => setIsScanning(!isScanning)}
                     className={cn(
-                      "h-14 w-14 rounded-2xl flex-shrink-0 transition-all shadow-md",
-                      isScanning
-                        ? "bg-red-500 text-white hover:bg-red-600 shadow-red-500/20"
-                        : "bg-slate-800 text-white hover:bg-slate-900 shadow-slate-500/20",
+                      "h-14 w-14 rounded-2xl",
+                      isScanning ? "bg-red-500" : "bg-slate-800",
                     )}
                   >
-                    {/* Tambahkan w-8 h-8 untuk memperbesar icon */}
                     {isScanning ? (
-                      <X className="w-8 h-8" />
+                      <X className="w-6 h-6" />
                     ) : (
-                      <ScanLine className="w-8 h-8" />
+                      <ScanLine className="w-6 h-6" />
                     )}
                   </Button>
                 </div>
-
-                {/* Tampilan Scanner */}
                 {isScanning && (
-                  <div className="mt-4 rounded-xl overflow-hidden border-2 border-[#71C9CE] shadow-lg animate-in fade-in zoom-in-95 duration-200">
+                  <div className="mt-4 rounded-xl overflow-hidden border-2 border-[#71C9CE] shadow-lg animate-in zoom-in-95">
                     <Scanner
                       onScan={handleScanResult}
                       components={{ audio: false, finder: true }}
@@ -534,76 +457,38 @@ export default function TransaksiPage() {
                   </div>
                 )}
               </div>
-
-              <div className="space-y-3">
-                <label className="text-xs font-bold text-slate-500 uppercase ml-1">
-                  Metode Pembayaran
-                </label>
-                <div className="grid grid-cols-2 gap-4">
-                  <button
-                    type="button"
-                    onClick={() => setFormOut({ ...formOut, metode: "cash" })}
-                    className={cn(
-                      "flex flex-col items-center justify-center gap-2 py-4 rounded-2xl border transition-all duration-300",
-                      formOut.metode === "cash"
-                        ? "bg-[#E3FDFD] border-[#71C9CE] text-[#71C9CE] shadow-md ring-1 ring-[#71C9CE]"
-                        : "bg-white border-transparent text-slate-400 hover:bg-white/80",
-                    )}
-                  >
-                    <Banknote
-                      className={cn(
-                        "w-6 h-6",
-                        formOut.metode === "cash"
-                          ? "text-[#71C9CE]"
-                          : "text-slate-300",
-                      )}
-                    />
-                    <span className="font-bold text-sm">Tunai</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFormOut({ ...formOut, metode: "qris" })}
-                    className={cn(
-                      "flex flex-col items-center justify-center gap-2 py-4 rounded-2xl border transition-all duration-300",
-                      formOut.metode === "qris"
-                        ? "bg-slate-100 border-slate-600 text-slate-800 shadow-md ring-1 ring-slate-600"
-                        : "bg-white border-transparent text-slate-400 hover:bg-white/80",
-                    )}
-                  >
-                    <QrCode className="w-6 h-6" />
-                    <span className="font-bold text-sm">QRIS</span>
-                  </button>
-                </div>
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => setFormOut({ ...formOut, metode: "cash" })}
+                  className={cn(
+                    "flex flex-col items-center py-4 rounded-2xl border",
+                    formOut.metode === "cash"
+                      ? "bg-[#E3FDFD] border-[#71C9CE] text-[#71C9CE]"
+                      : "bg-white text-slate-400",
+                  )}
+                >
+                  <Banknote className="w-6 h-6 mb-1" />{" "}
+                  <span className="font-bold text-sm">Tunai</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormOut({ ...formOut, metode: "qris" })}
+                  className={cn(
+                    "flex flex-col items-center py-4 rounded-2xl border",
+                    formOut.metode === "qris"
+                      ? "bg-slate-100 border-slate-600 text-slate-800"
+                      : "bg-white text-slate-400",
+                  )}
+                >
+                  <QrCode className="w-6 h-6 mb-1" />{" "}
+                  <span className="font-bold text-sm">QRIS</span>
+                </button>
               </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase ml-1">
-                  Foto Identitas (Opsional)
-                </label>
-                <div className="relative">
-                  <input
-                    type="file"
-                    onChange={(e) =>
-                      setFormOut({
-                        ...formOut,
-                        foto: e.target.files ? e.target.files[0] : null,
-                      })
-                    }
-                    className="block w-full text-sm text-slate-500
-                        file:mr-4 file:py-3 file:px-6
-                        file:rounded-xl file:border-0
-                        file:text-xs file:font-bold
-                        file:bg-[#E3FDFD] file:text-[#71C9CE]
-                        hover:file:bg-[#CBF1F5]
-                        cursor-pointer bg-white rounded-xl p-1"
-                  />
-                </div>
-              </div>
-
               <Button
                 type="submit"
                 isLoading={loading}
-                className="w-full bg-slate-800 hover:bg-slate-900 text-white shadow-xl shadow-slate-500/20 h-14 rounded-2xl text-base font-bold transition-all hover:-translate-y-1 mt-2"
+                className="w-full bg-slate-800 hover:bg-slate-900 text-white h-14 rounded-2xl font-bold"
               >
                 Proses Checkout
               </Button>
