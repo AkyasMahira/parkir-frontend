@@ -13,7 +13,7 @@ export const useAuth = () => {
     setError("");
 
     try {
-      // Kita tetapkan tipe return response axios sesuai interface LoginResponse
+      // tetapkan tipe return response axios sesuai interface LoginResponse
       const response = await api.post<LoginResponse>("/login", {
         username,
         password,

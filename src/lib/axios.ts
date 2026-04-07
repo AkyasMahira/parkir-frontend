@@ -11,10 +11,8 @@ const api = axios.create({
 // Middleware Frontend
 api.interceptors.request.use(
   (config) => {
-    // Ambil token dari LocalStorage
     const token = localStorage.getItem("token");
 
-    // Jika token ada, tempelkan ke Header Authorization
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
