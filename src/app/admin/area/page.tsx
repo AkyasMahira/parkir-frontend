@@ -263,8 +263,8 @@ export default function AreaPage() {
         </div>
 
         {/* --- LIST & MONITORING (Responsive Table/Card) --- */}
-        <div className={cn(GLASS_CARD, "lg:col-span-2 min-h-[400px] order-2")}>
-          <div className="p-6 border-b border-[#A6E3E9]/30 bg-gradient-to-r from-[#E3FDFD]/30 to-white/30 flex justify-between items-center">
+        <div className={cn(GLASS_CARD, "lg:col-span-2 min-h-100 order-2")}>
+          <div className="p-6 border-b border-[#A6E3E9]/30 bg-linear-to-r from-[#E3FDFD]/30 to-white/30 flex justify-between items-center">
             <h3 className="font-black text-slate-800 text-lg">
               Status Kapasitas
             </h3>
@@ -331,7 +331,7 @@ export default function AreaPage() {
                       >
                         <td className="px-8 py-6">
                           <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#71C9CE] to-[#A6E3E9] flex items-center justify-center text-white shadow-md shadow-[#71C9CE]/20 group-hover:scale-110 transition-transform">
+                            <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-[#71C9CE] to-[#A6E3E9] flex items-center justify-center text-white shadow-md shadow-[#71C9CE]/20 group-hover:scale-110 transition-transform">
                               <MapPin size={20} />
                             </div>
                             <div className="flex flex-col">
@@ -346,7 +346,7 @@ export default function AreaPage() {
                         </td>
 
                         <td className="px-8 py-6">
-                          <div className="flex flex-col gap-2 min-w-[180px]">
+                          <div className="flex flex-col gap-2 min-w-45">
                             <div className="flex justify-between items-end">
                               <span
                                 className={cn(
@@ -436,7 +436,7 @@ export default function AreaPage() {
                   >
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#71C9CE] to-[#A6E3E9] flex items-center justify-center text-white shadow-md shadow-[#71C9CE]/20">
+                        <div className="w-12 h-12 rounded-xl bg-linear-to-br from-[#71C9CE] to-[#A6E3E9] flex items-center justify-center text-white shadow-md shadow-[#71C9CE]/20">
                           <MapPin size={20} />
                         </div>
                         <div>

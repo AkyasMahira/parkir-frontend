@@ -15,7 +15,6 @@ import {
   User as UserIcon,
   CheckCircle2,
   AlertTriangle,
-  MoreHorizontal,
 } from "lucide-react";
 import { getInitials, cn } from "@/lib/utils";
 import api from "@/lib/axios";
@@ -111,7 +110,7 @@ export default function UsersPage() {
     return (
       <span
         className={cn(
-          "inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-bold border ring-1 ring-inset capitalize transition-all cursor-default uppercase tracking-wide",
+          "inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-bold border ring-1 ring-inset uppercase transition-all cursor-default uppercase tracking-wide",
           style,
         )}
       >
@@ -216,7 +215,7 @@ export default function UsersPage() {
                   >
                     <td className="px-8 py-4">
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#71C9CE] to-[#A6E3E9] flex items-center justify-center text-white font-bold text-sm shadow-md shadow-[#71C9CE]/20">
+                        <div className="w-10 h-10 rounded-full bg-linear-to-tr from-[#71C9CE] to-[#A6E3E9] flex items-center justify-center text-white font-bold text-sm shadow-md shadow-[#71C9CE]/20">
                           {getInitials(user.nama_lengkap)}
                         </div>
                         <div>
@@ -285,7 +284,7 @@ export default function UsersPage() {
                <div key={user.id_user} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 relative">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#71C9CE] to-[#A6E3E9] flex items-center justify-center text-white font-bold text-base shadow-md shadow-[#71C9CE]/20">
+                      <div className="w-12 h-12 rounded-full bg-linear-to-tr from-[#71C9CE] to-[#A6E3E9] flex items-center justify-center text-white font-bold text-base shadow-md shadow-[#71C9CE]/20">
                           {getInitials(user.nama_lengkap)}
                       </div>
                       <div>

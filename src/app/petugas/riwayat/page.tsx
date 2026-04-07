@@ -27,7 +27,7 @@ const GLASS_CARD =
   "bg-white/70 backdrop-blur-xl border border-white/40 shadow-xl shadow-[#71C9CE]/5 rounded-[2rem] overflow-hidden";
 
 /* =========================================
-   1. KOMPONEN STRUK (HIDDEN - UNTUK PRINT)
+    1. KOMPONEN STRUK (HIDDEN - UNTUK PRINT)
    ========================================= */
 const StrukPrintTemplate = ({ data, componentRef }: any) => {
   if (!data) return null;
@@ -80,7 +80,7 @@ const StrukPrintTemplate = ({ data, componentRef }: any) => {
 };
 
 /* =========================================
-   2. KOMPONEN MODAL PREVIEW STRUK (GLASS STYLE)
+    2. KOMPONEN MODAL PREVIEW STRUK (GLASS STYLE)
    ========================================= */
 const StrukModal = ({
   data,
@@ -94,14 +94,14 @@ const StrukModal = ({
   if (!data) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-60 flex items-center justify-center p-4 animate-in fade-in duration-200">
       <div
         className="absolute inset-0 bg-[#0F172A]/40 backdrop-blur-md transition-opacity"
         onClick={onClose}
       />
-      <div className="relative bg-white/95 backdrop-blur-2xl rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden scale-100 animate-in zoom-in-95 duration-200 border border-white/50">
+      <div className="relative bg-white/95 backdrop-blur-2xl rounded-4xl shadow-2xl w-full max-w-sm overflow-hidden scale-100 animate-in zoom-in-95 duration-200 border border-white/50">
         {/* Header Modal */}
-        <div className="bg-gradient-to-r from-[#E3FDFD] to-white border-b border-[#A6E3E9]/30 p-5 flex justify-between items-center">
+        <div className="bg-linear-to-r from-[#E3FDFD] to-white border-b border-[#A6E3E9]/30 p-5 flex justify-between items-center">
           <h3 className="font-bold text-slate-800 flex items-center gap-2">
             <div className="p-1.5 bg-white rounded-lg shadow-sm">
               <CarFront className="w-5 h-5 text-[#71C9CE]" />
@@ -120,7 +120,7 @@ const StrukModal = ({
         <div className="p-8 bg-slate-50 flex justify-center">
           <div className="bg-white p-5 w-full shadow-sm border border-slate-200 text-sm font-mono leading-relaxed relative rounded-sm">
             {/* Zigzag Top */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-[linear-gradient(135deg,transparent_5px,#fff_5px),linear-gradient(-135deg,transparent_5px,#fff_5px)] bg-[length:10px_10px] bg-repeat-x -mt-1 transform rotate-180"></div>
+            <div className="absolute top-0 left-0 w-full h-1 bg-[linear-gradient(135deg,transparent_5px,#fff_5px),linear-gradient(-135deg,transparent_5px,#fff_5px)] bg-size-[10px_10px] bg-repeat-x -mt-1 transform rotate-180"></div>
 
             <div className="text-center font-bold mb-6 text-slate-800">
               COACHPRO PARKING
@@ -163,7 +163,7 @@ const StrukModal = ({
             </div>
 
             {/* Zigzag Bottom */}
-            <div className="absolute bottom-0 left-0 w-full h-1 bg-[linear-gradient(135deg,transparent_5px,#fff_5px),linear-gradient(-135deg,transparent_5px,#fff_5px)] bg-[length:10px_10px] bg-repeat-x -mb-1"></div>
+            <div className="absolute bottom-0 left-0 w-full h-1 bg-[linear-gradient(135deg,transparent_5px,#fff_5px),linear-gradient(-135deg,transparent_5px,#fff_5px)] bg-size-[10px_10px] bg-repeat-x -mb-1"></div>
           </div>
         </div>
 
@@ -190,7 +190,7 @@ const StrukModal = ({
 };
 
 /* =========================================
-   3. HALAMAN UTAMA RIWAYAT
+    3. HALAMAN UTAMA RIWAYAT
    ========================================= */
 interface Transaksi {
   id_transaksi: number;
@@ -464,7 +464,7 @@ export default function RiwayatPage() {
           <Button
             onClick={handleExport}
             disabled={filteredData.length === 0}
-            className="w-full md:w-auto bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/20 h-12 px-6 rounded-2xl flex items-center justify-center gap-2 whitespace-nowrap font-bold"
+            className="w-full md:w-auto bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/20 h-12 px-6 rounded-2xl flex items-center justify-center gap-2 whitespace-nowrap font-bold"
           >
             <FileSpreadsheet className="w-4 h-4" />
             <span>Export</span>
@@ -474,7 +474,7 @@ export default function RiwayatPage() {
 
       {/* DATA CONTAINER */}
       <div
-        className={cn(GLASS_CARD, "flex flex-col min-h-[500px] relative z-10")}
+        className={cn(GLASS_CARD, "flex flex-col min-h-125 relative z-10")}
       >
         {/* === 1. DESKTOP VIEW (TABLE) === */}
         <div className="hidden md:block overflow-x-auto flex-1">
@@ -530,7 +530,7 @@ export default function RiwayatPage() {
                     </td>
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-[#71C9CE] to-[#A6E3E9] rounded-xl flex items-center justify-center text-white shadow-md shadow-[#71C9CE]/20">
+                        <div className="w-10 h-10 bg-linear-to-br from-[#71C9CE] to-[#A6E3E9] rounded-xl flex items-center justify-center text-white shadow-md shadow-[#71C9CE]/20">
                           <CarFront className="w-5 h-5" />
                         </div>
                         <div>
@@ -653,7 +653,6 @@ export default function RiwayatPage() {
                     </div>
                   </div>
                   <Button
-                    size="sm"
                     onClick={() => openStrukModal(row.id_transaksi)}
                     disabled={isLoadingStrukId === row.id_transaksi}
                     className="bg-white border border-slate-200 text-slate-600 hover:bg-[#E3FDFD] hover:text-[#71C9CE] shadow-sm h-9 px-4"
@@ -673,14 +672,13 @@ export default function RiwayatPage() {
         </div>
 
         {/* Footer Pagination */}
-        <div className="mt-auto border-t border-[#A6E3E9]/30 p-5 bg-gradient-to-r from-[#E3FDFD]/30 to-white/30 flex justify-between items-center">
+        <div className="mt-auto border-t border-[#A6E3E9]/30 p-5 bg-linear-to-r from-[#E3FDFD]/30 to-white/30 flex justify-between items-center">
           <span className="text-xs font-bold text-slate-400">
             Page {currentPage} of {totalPages || 1}
           </span>
           <div className="flex gap-2">
             <Button
               variant="secondary"
-              size="sm"
               className="h-9 w-9 p-0 bg-white"
               onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
               disabled={currentPage === 1}
@@ -689,7 +687,6 @@ export default function RiwayatPage() {
             </Button>
             <Button
               variant="secondary"
-              size="sm"
               className="h-9 w-9 p-0 bg-white"
               onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
               disabled={currentPage === totalPages}

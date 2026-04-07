@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -44,18 +43,18 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen w-full flex bg-[#E3FDFD] overflow-hidden">
       {/* --- BAGIAN KIRI: BRANDING (Hidden di Mobile) --- */}
-      <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-16 text-black overflow-hidden bg-gradient-to-br from-[#71C9CE] to-[#A6E3E9]">
+      <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-16 text-black overflow-hidden bg-linear-to-br from-[#71C9CE] to-[#A6E3E9]">
         {/* Animated Background Blobs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <motion.div
             animate={{ rotate: 360, scale: [1, 1.2, 1] }}
             transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="absolute -top-[20%] -left-[10%] w-[600px] h-[600px] bg-white/30 rounded-full blur-[80px]"
+            className="absolute -top-[20%] -left-[10%] w-150 h-150 bg-white/30 rounded-full blur-[80px]"
           />
           <motion.div
             animate={{ rotate: -360, scale: [1, 1.3, 1] }}
             transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-            className="absolute bottom-[10%] -right-[10%] w-[500px] h-[500px] bg-white/40 rounded-full blur-[100px]"
+            className="absolute bottom-[10%] -right-[10%] w-125 h-125 bg-white/40 rounded-full blur-[100px]"
           />
         </div>
 
@@ -120,7 +119,7 @@ export default function LoginPage() {
         >
           {/* Header Mobile (Logo hanya muncul di mobile) */}
           <motion.div variants={fadeInUp} className="text-center">
-            <div className="lg:hidden mx-auto w-16 h-16 bg-gradient-to-tr from-[#71C9CE] to-[#A6E3E9] rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg shadow-[#71C9CE]/40">
+            <div className="lg:hidden mx-auto w-16 h-16 bg-linear-to-tr from-[#71C9CE] to-[#A6E3E9] rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg shadow-[#71C9CE]/40">
               <Car className="w-8 h-8" />
             </div>
             <h2 className="text-3xl font-black text-slate-800 tracking-tight">

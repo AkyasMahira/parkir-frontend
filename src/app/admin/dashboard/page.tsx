@@ -7,11 +7,9 @@ import {
   Users,
   Wallet,
   Activity,
-  ArrowRight,
   Plus,
   Settings,
   TrendingUp,
-  CreditCard,
   MoreHorizontal,
 } from "lucide-react";
 import { formatRupiah, cn } from "@/lib/utils";
@@ -52,7 +50,7 @@ const StatWidget = ({
       {loading ? (
         <div className="h-8 w-32 bg-gray-200 rounded animate-pulse" />
       ) : (
-        <h2 className="text-2xl md:text-3xl font-black text-slate-800 break-words">
+        <h2 className="text-2xl md:text-3xl font-black text-slate-800 wrap-break-word">
           {typeof value === "number" ? value.toLocaleString("id-ID") : value}
         </h2>
       )}
@@ -127,7 +125,7 @@ export default function AdminDashboard() {
           <div
             className={cn(
               GLASS_CARD,
-              "p-6 md:p-10 relative overflow-hidden bg-gradient-to-br from-white/80 to-[#E3FDFD]/50",
+              "p-6 md:p-10 relative overflow-hidden bg-linear-to-br from-white/80 to-[#E3FDFD]/50",
             )}
           >
             <div className="flex flex-col md:flex-row justify-between items-center gap-8 relative z-10">
@@ -153,7 +151,7 @@ export default function AdminDashboard() {
               </div>
 
               {/* Abstract 3D Shapes (Wallet Icon) - HIDDEN ON MOBILE */}
-              <div className="hidden md:flex w-32 h-32 md:w-48 md:h-48 bg-gradient-to-tr from-[#71C9CE] to-[#A6E3E9] rounded-[2rem] shadow-2xl rotate-12 items-center justify-center shrink-0">
+              <div className="hidden md:flex w-32 h-32 md:w-48 md:h-48 bg-linear-to-tr from-[#71C9CE] to-[#A6E3E9] rounded-4xl shadow-2xl rotate-12 items-center justify-center shrink-0">
                 <Wallet className="w-16 h-16 text-white" />
               </div>
             </div>
@@ -182,7 +180,7 @@ export default function AdminDashboard() {
         <div className="space-y-6">
           {/* Profile / User Card */}
           <div className={cn(GLASS_CARD, "p-6 md:p-8 text-center")}>
-            <div className="w-16 h-16 md:w-20 md:h-20 mx-auto bg-gradient-to-br from-[#71C9CE] to-[#A6E3E9] rounded-full p-1 shadow-lg mb-4">
+            <div className="w-16 h-16 md:w-20 md:h-20 mx-auto bg-linear-to-br from-[#71C9CE] to-[#A6E3E9] rounded-full p-1 shadow-lg mb-4">
               <div className="w-full h-full bg-white rounded-full flex items-center justify-center">
                 <Users className="w-6 h-6 md:w-8 md:h-8 text-[#71C9CE]" />
               </div>

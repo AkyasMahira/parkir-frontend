@@ -231,7 +231,7 @@ export default function PetugasDashboard() {
           </div>
           <h1 className="text-3xl md:text-4xl font-black text-slate-800 tracking-tight">
             Halo,{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#71C9CE] to-[#4AA3A8]">
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-[#71C9CE] to-[#4AA3A8]">
               {user?.nama_lengkap?.split(" ")[0] || "Petugas"}
             </span>{" "}
             👋
@@ -296,9 +296,9 @@ export default function PetugasDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* LEFT: CTA SECTION */}
         <div className="lg:col-span-1 h-full order-2 lg:order-1">
-          <div className="relative overflow-hidden rounded-[2rem] p-8 text-white shadow-xl shadow-[#71C9CE]/20 h-full flex flex-col justify-between group bg-gradient-to-br from-[#71C9CE] to-[#4AA3A8]">
+          <div className="relative overflow-hidden rounded-4xl p-8 text-white shadow-xl shadow-[#71C9CE]/20 h-full flex flex-col justify-between group bg-linear-to-br from-[#71C9CE] to-[#4AA3A8]">
             <div className="absolute -top-20 -right-20 w-60 h-60 bg-white/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700" />
-            <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#4AA3A8]/50 to-transparent" />
+            <div className="absolute bottom-0 left-0 w-full h-1/2 bg-linear-to-t from-[#4AA3A8]/50 to-transparent" />
 
             <div className="relative z-10">
               <div className="inline-flex items-center gap-2 mb-6 bg-white/20 px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-md border border-white/20">
@@ -326,7 +326,7 @@ export default function PetugasDashboard() {
         {/* RIGHT: RECENT ACTIVITY */}
         <div className="lg:col-span-2 order-1 lg:order-2">
           <div className={cn(GLASS_CARD, "h-full flex flex-col")}>
-            <div className="p-6 md:p-8 border-b border-[#A6E3E9]/30 flex justify-between items-center bg-gradient-to-r from-[#E3FDFD]/30 to-white/30">
+            <div className="p-6 md:p-8 border-b border-[#A6E3E9]/30 flex justify-between items-center bg-linear-to-r from-[#E3FDFD]/30 to-white/30">
               <h3 className="font-black text-slate-800 text-lg">
                 Aktivitas Terkini
               </h3>

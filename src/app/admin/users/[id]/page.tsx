@@ -14,7 +14,6 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import api from "@/lib/axios";
 
 // Style Constants
@@ -130,9 +129,9 @@ export default function UserFormPage() {
         {/* MAIN CARD */}
         <div className={GLASS_CARD}>
           {/* HEADER SECTION - Responsive Padding */}
-          <div className="p-6 md:p-8 border-b border-[#A6E3E9]/30 bg-gradient-to-r from-[#E3FDFD]/50 to-white/50">
+          <div className="p-6 md:p-8 border-b border-[#A6E3E9]/30 bg-linear-to-r from-[#E3FDFD]/50 to-white/50">
             <div className="flex items-center gap-4 md:gap-5">
-              <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-[#71C9CE] to-[#A6E3E9] flex items-center justify-center text-white shadow-lg shadow-[#71C9CE]/30 shrink-0">
+              <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-linear-to-br from-[#71C9CE] to-[#A6E3E9] flex items-center justify-center text-white shadow-lg shadow-[#71C9CE]/30 shrink-0">
                 {isCreateMode ? (
                   <UserPlus className="w-6 h-6 md:w-7 md:h-7" />
                 ) : (

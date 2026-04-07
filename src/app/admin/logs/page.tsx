@@ -4,7 +4,6 @@ import { useEffect, useState, useMemo } from "react";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select";
 import {
   RefreshCw,
   Search,
@@ -188,7 +187,7 @@ export default function LogPage() {
       </div>
 
       {/* LOG LIST CARD */}
-      <div className={cn(GLASS_CARD, "flex flex-col min-h-[500px]")}>
+      <div className={cn(GLASS_CARD, "flex flex-col min-h-125")}>
         {/* === 1. DESKTOP VIEW (TABLE) === */}
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm text-left">
@@ -259,7 +258,7 @@ export default function LogPage() {
 
                       <td className="px-8 py-5">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#71C9CE] to-[#A6E3E9] flex items-center justify-center text-white text-xs font-bold shadow-sm shadow-[#71C9CE]/20">
+                          <div className="w-9 h-9 rounded-full bg-linear-to-tr from-[#71C9CE] to-[#A6E3E9] flex items-center justify-center text-white text-xs font-bold shadow-sm shadow-[#71C9CE]/20">
                             {getInitials(log.user?.nama_lengkap || "?")}
                           </div>
                           <div>
@@ -341,7 +340,7 @@ export default function LogPage() {
 
                   {/* User Info & Time */}
                   <div className="flex items-center gap-3 pr-16">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#71C9CE] to-[#A6E3E9] flex items-center justify-center text-white text-xs font-bold shadow-md shadow-[#71C9CE]/20 shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-linear-to-tr from-[#71C9CE] to-[#A6E3E9] flex items-center justify-center text-white text-xs font-bold shadow-md shadow-[#71C9CE]/20 shrink-0">
                       {getInitials(log.user?.nama_lengkap || "?")}
                     </div>
                     <div>
@@ -379,7 +378,7 @@ export default function LogPage() {
         </div>
 
         {/* FOOTER PAGINATION */}
-        <div className="mt-auto border-t border-[#A6E3E9]/30 p-4 md:p-6 bg-gradient-to-r from-[#E3FDFD]/30 to-white/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mt-auto border-t border-[#A6E3E9]/30 p-4 md:p-6 bg-linear-to-r from-[#E3FDFD]/30 to-white/30 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs font-bold text-slate-400">
             Showing <span className="text-slate-800">{currentLogs.length}</span>{" "}
             of {filteredLogs.length} records

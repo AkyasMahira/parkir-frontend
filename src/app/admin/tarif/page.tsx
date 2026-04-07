@@ -270,8 +270,8 @@ export default function TarifPage() {
         </div>
 
         {/* --- LIST TARIF (TABLE ON DESKTOP, CARD ON MOBILE) --- */}
-        <div className={cn(GLASS_CARD, "lg:col-span-2 min-h-[300px] order-2")}>
-          <div className="p-6 border-b border-[#A6E3E9]/30 bg-gradient-to-r from-[#E3FDFD]/30 to-white/30 flex justify-between items-center">
+        <div className={cn(GLASS_CARD, "lg:col-span-2 min-h-75 order-2")}>
+          <div className="p-6 border-b border-[#A6E3E9]/30 bg-linear-to-r from-[#E3FDFD]/30 to-white/30 flex justify-between items-center">
             <h3 className="font-black text-slate-800 text-lg">
               Daftar Tarif Aktif
             </h3>
@@ -325,7 +325,7 @@ export default function TarifPage() {
                     >
                       <td className="px-8 py-5">
                         <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#71C9CE] to-[#A6E3E9] flex items-center justify-center text-white shadow-md shadow-[#71C9CE]/20 group-hover:scale-110 transition-transform duration-300 shrink-0">
+                          <div className="w-10 h-10 rounded-xl bg-linear-to-br from-[#71C9CE] to-[#A6E3E9] flex items-center justify-center text-white shadow-md shadow-[#71C9CE]/20 group-hover:scale-110 transition-transform duration-300 shrink-0">
                             {getIconByType(r.jenis_kendaraan)}
                           </div>
                           <span className="font-bold text-slate-800 capitalize text-base">
@@ -388,7 +388,7 @@ export default function TarifPage() {
                 rates.map((r) => (
                   <div key={r.id_tarif} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#71C9CE] to-[#A6E3E9] flex items-center justify-center text-white shadow-md shadow-[#71C9CE]/20 shrink-0">
+                        <div className="w-12 h-12 rounded-xl bg-linear-to-br from-[#71C9CE] to-[#A6E3E9] flex items-center justify-center text-white shadow-md shadow-[#71C9CE]/20 shrink-0">
                             {getIconByType(r.jenis_kendaraan)}
                         </div>
                         <div>

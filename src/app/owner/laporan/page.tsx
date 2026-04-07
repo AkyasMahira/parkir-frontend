@@ -8,13 +8,11 @@ import api from "@/lib/axios";
 import {
   Calendar,
   FileText,
-  Search,
   Clock,
   MapPin,
   User,
   Receipt,
   Filter,
-  CarFront,
 } from "lucide-react";
 
 // --- INTERFACE ---
@@ -116,7 +114,7 @@ export default function OwnerLaporan() {
 
           <button
             onClick={fetchData}
-            className="w-full lg:w-auto h-12 px-8 bg-gradient-to-r from-[#71C9CE] to-[#4AA3A8] hover:from-[#5dbbc0] hover:to-[#3b8c91] text-white rounded-2xl font-bold shadow-lg shadow-[#71C9CE]/30 flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 active:scale-95"
+            className="w-full lg:w-auto h-12 px-8 bg-linear-to-r from-[#71C9CE] to-[#4AA3A8] hover:from-[#5dbbc0] hover:to-[#3b8c91] text-white rounded-2xl font-bold shadow-lg shadow-[#71C9CE]/30 flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 active:scale-95"
           >
             <Filter className="w-4 h-4" />
             <span className="lg:hidden">Terapkan</span>
@@ -127,7 +125,7 @@ export default function OwnerLaporan() {
 
       {/* DATA DISPLAY SECTION */}
       <div
-        className={cn(GLASS_CARD, "flex flex-col min-h-[500px] relative z-10")}
+        className={cn(GLASS_CARD, "flex flex-col min-h-125 relative z-10")}
       >
         {/* === 1. DESKTOP VIEW (TABLE) === */}
         <div className="hidden md:block overflow-x-auto">

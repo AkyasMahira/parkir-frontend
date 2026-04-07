@@ -11,12 +11,10 @@ import {
   CalendarDays,
   Wallet,
   ArrowUpRight,
-  Download,
   MapPin,
   Bike,
   LayoutGrid,
 } from "lucide-react";
-import { Button } from "@/components/ui/Button";
 
 // --- INTERFACES ---
 interface AreaStat {
@@ -52,9 +50,9 @@ const StatCard = ({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-[2rem] p-6 shadow-xl transition-all duration-500 hover:-translate-y-1 group",
+        "relative overflow-hidden rounded-4xl p-6 shadow-xl transition-all duration-500 hover:-translate-y-1 group",
         isHighlight
-          ? "bg-gradient-to-br from-[#71C9CE] to-[#4AA3A8] text-white"
+          ? "bg-linear-to-br from-[#71C9CE] to-[#4AA3A8] text-white"
           : "bg-white/60 backdrop-blur-xl border border-white/50 text-slate-800",
       )}
       style={{ animationDelay: `${delay}ms` }}
@@ -104,7 +102,7 @@ const StatCard = ({
 // --- COMPONENT: AREA PROGRESS ---
 const AreaProgress = ({ area }: { area: AreaStat }) => {
   // Warna dinamis berdasarkan okupansi
-  let colorClass = "bg-[#71C9CE]"; // Normal (Teal)
+  let colorClass = "bg-[#71C9CE]"; 
   let textClass = "text-[#71C9CE]";
 
   if (area.persentase > 85) {
@@ -147,7 +145,7 @@ const AreaProgress = ({ area }: { area: AreaStat }) => {
           style={{ width: `${area.persentase}%` }}
         >
           {/* Shimmer Effect */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent w-full -translate-x-full animate-shimmer" />
+          <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent w-full -translate-x-full animate-shimmer" />
         </div>
       </div>
     </div>
@@ -199,7 +197,7 @@ export default function OwnerDashboard() {
         <div>
           <h1 className="text-4xl font-black text-slate-800 tracking-tight">
             Dashboard{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#71C9CE] to-[#4AA3A8]">
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-[#71C9CE] to-[#4AA3A8]">
               Owner
             </span>
           </h1>
@@ -256,7 +254,7 @@ export default function OwnerDashboard() {
               </div>
             </div>
 
-            <div className="space-y-6 pr-2 custom-scrollbar overflow-y-auto max-h-[350px]">
+            <div className="space-y-6 pr-2 custom-scrollbar overflow-y-auto max-h-87.5">
               {stats?.area_stats && stats.area_stats.length > 0 ? (
                 stats.area_stats.map((area, idx) => (
                   <AreaProgress key={idx} area={area} />
@@ -275,7 +273,7 @@ export default function OwnerDashboard() {
 
         {/* 3. VEHICLE BREAKDOWN (Right - 1 Col) */}
         <div className="lg:col-span-1">
-          <div className="bg-[#1E293B] rounded-[2rem] p-8 text-white shadow-2xl h-full relative overflow-hidden flex flex-col">
+          <div className="bg-[#1E293B] rounded-4xl p-8 text-white shadow-2xl h-full relative overflow-hidden flex flex-col">
             {/* Dark Card Decor */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#71C9CE]/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-40 h-40 bg-[#A6E3E9]/5 rounded-full blur-3xl -ml-10 -mb-10 pointer-events-none" />

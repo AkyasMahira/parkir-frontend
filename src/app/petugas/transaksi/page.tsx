@@ -5,12 +5,12 @@ import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
+import Image from "next/image";
 import {
   LogOut,
   Ticket,
   X,
   QrCode,
-  CarFront,
   Loader2,
   CheckCircle2,
   AlertCircle,
@@ -30,9 +30,9 @@ const GLASS_CARD =
 
 const BackgroundDecoration = () => (
   <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none bg-[#F0FBFC]">
-    <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#71C9CE]/20 rounded-full blur-[100px] mix-blend-multiply animate-blob" />
-    <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#A6E3E9]/20 rounded-full blur-[100px] mix-blend-multiply animate-blob animation-delay-2000" />
-    <div className="absolute top-[20%] left-[30%] w-[400px] h-[400px] bg-[#CBF1F5]/30 rounded-full blur-[100px] mix-blend-multiply animate-blob animation-delay-4000" />
+    <div className="absolute top-[-10%] left-[-10%] w-125 h-125 bg-[#71C9CE]/20 rounded-full blur-[100px] mix-blend-multiply animate-blob" />
+    <div className="absolute bottom-[-10%] right-[-10%] w-125 h-125 bg-[#A6E3E9]/20 rounded-full blur-[100px] mix-blend-multiply animate-blob animation-delay-2000" />
+    <div className="absolute top-[20%] left-[30%] w-100 h-100 bg-[#CBF1F5]/30 rounded-full blur-[100px] mix-blend-multiply animate-blob animation-delay-4000" />
   </div>
 );
 
@@ -83,13 +83,13 @@ const StrukParkir = ({ data, componentRef }: any) => {
 const QrisModal = ({ data, onClose }: { data: any; onClose: () => void }) => {
   if (!data) return null;
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-60 flex items-center justify-center p-4 animate-in fade-in duration-200">
       <div
         className="absolute inset-0 bg-[#0F172A]/40 backdrop-blur-md"
         onClick={onClose}
       />
-      <div className="relative bg-white/90 backdrop-blur-2xl border border-white/50 rounded-[2rem] shadow-2xl max-w-sm w-full overflow-hidden animate-in zoom-in-95">
-        <div className="p-5 bg-gradient-to-r from-[#E3FDFD] to-white border-b border-[#A6E3E9]/50 flex justify-between items-center">
+      <div className="relative bg-white/90 backdrop-blur-2xl border border-white/50 rounded-4xl shadow-2xl max-w-sm w-full overflow-hidden animate-in zoom-in-95">
+        <div className="p-5 bg-linear-to-r from-[#E3FDFD] to-white border-b border-[#A6E3E9]/50 flex justify-between items-center">
           <h3 className="font-bold text-slate-800 flex items-center gap-2">
             <div className="p-1.5 bg-white rounded-lg shadow-sm">
               <QrCode className="w-5 h-5 text-[#71C9CE]" />
@@ -105,16 +105,18 @@ const QrisModal = ({ data, onClose }: { data: any; onClose: () => void }) => {
         </div>
         <div className="p-8 flex flex-col items-center text-center">
           <div className="bg-white p-4 border border-slate-100 rounded-3xl shadow-inner mb-6 relative">
-            <img
+            <Image
               src={data.qr_image}
               alt="QR Code"
+              width={192}
+              height={192}
               className="w-48 h-48 object-contain mix-blend-multiply"
             />
           </div>
           <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">
             Total Tagihan
           </div>
-          <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#71C9CE] to-[#4AA3A8] mb-8">
+          <div className="text-4xl font-black text-transparent bg-clip-text bg-linear-to-r from-[#71C9CE] to-[#4AA3A8] mb-8">
             {formatRupiah(data.amount || 0)}
           </div>
           <div className="flex items-center gap-3 text-[#71C9CE] bg-[#E3FDFD] px-6 py-3 rounded-2xl text-sm font-bold animate-pulse">
@@ -287,7 +289,7 @@ export default function TransaksiPage() {
       {notification && (
         <div
           className={cn(
-            "fixed top-6 right-6 z-[100] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-xl border animate-in slide-in-from-right backdrop-blur-xl",
+            "fixed top-6 right-6 z-100 flex items-center gap-3 px-6 py-4 rounded-2xl shadow-xl border animate-in slide-in-from-right backdrop-blur-xl",
             notification.type === "success"
               ? "bg-[#E3FDFD]/90 border-[#A6E3E9] text-[#4AA3A8]"
               : "bg-red-50/90 border-red-100 text-red-600",
@@ -330,12 +332,12 @@ export default function TransaksiPage() {
         <div
           className={cn(
             GLASS_CARD,
-            "p-1 bg-gradient-to-br from-[#71C9CE]/10 to-transparent",
+            "p-1 bg-linear-to-br from-[#71C9CE]/10 to-transparent",
           )}
         >
           <div className="relative p-8 bg-white/40 backdrop-blur-xl rounded-[1.8rem]">
             <div className="flex items-center gap-4 mb-8">
-              <div className="bg-gradient-to-br from-[#71C9CE] to-[#A6E3E9] p-3.5 rounded-2xl text-white shadow-lg shadow-[#71C9CE]/30">
+              <div className="bg-linear-to-br from-[#71C9CE] to-[#A6E3E9] p-3.5 rounded-2xl text-white shadow-lg shadow-[#71C9CE]/30">
                 <Ticket className="w-6 h-6" />
               </div>
               <div>
@@ -401,12 +403,12 @@ export default function TransaksiPage() {
         <div
           className={cn(
             GLASS_CARD,
-            "p-1 bg-gradient-to-br from-slate-200 to-transparent",
+            "p-1 bg-linear-to-br from-slate-200 to-transparent",
           )}
         >
           <div className="relative p-8 bg-white/40 backdrop-blur-xl rounded-[1.8rem]">
             <div className="flex items-center gap-4 mb-8">
-              <div className="bg-gradient-to-br from-slate-700 to-slate-800 p-3.5 rounded-2xl text-white shadow-lg shadow-slate-500/30">
+              <div className="bg-linear-to-br from-slate-700 to-slate-800 p-3.5 rounded-2xl text-white shadow-lg shadow-slate-500/30">
                 <LogOut className="w-6 h-6" />
               </div>
               <div>
