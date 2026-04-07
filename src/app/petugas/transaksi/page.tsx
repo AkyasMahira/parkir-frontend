@@ -204,7 +204,7 @@ export default function TransaksiPage() {
       });
       showNotif("success", "Kendaraan berhasil Check-in");
       setFormIn({ ...formIn, plat: "" });
-      cetakStruk(res.data.data.id_transaksi); // Tetap cetak saat masuk
+      cetakStruk(res.data.data.id_transaksi);
     } catch (err: any) {
       showNotif("error", err.response?.data?.message || "Check-in gagal");
     } finally {

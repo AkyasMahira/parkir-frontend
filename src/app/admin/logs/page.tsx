@@ -137,10 +137,10 @@ export default function LogPage() {
             </span>
           </div>
           <h1 className="text-3xl font-black text-slate-800 tracking-tight">
-            Log Aktivitas Sistem
+            Log Aktivitas Transaksi
           </h1>
           <p className="text-gray-500 font-medium text-sm mt-1">
-            Rekaman jejak digital keamanan dan operasional.
+            Rekaman jejak digital operasional.
           </p>
         </div>
 
@@ -170,7 +170,7 @@ export default function LogPage() {
             />
           </div>
 
-          <div className="w-full md:w-64 relative">
+          {/* <div className="w-full md:w-64 relative">
             <Filter className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10 pointer-events-none" />
             <Select
               options={[
@@ -183,7 +183,7 @@ export default function LogPage() {
               onChange={(e) => setRoleFilter(e.target.value)}
               className="bg-white pl-10 h-12"
             />
-          </div>
+          </div> */}
         </div>
       </div>
 
@@ -388,7 +388,6 @@ export default function LogPage() {
           <div className="flex items-center gap-2">
             <Button
               variant="secondary"
-              size="sm"
               disabled={currentPage === 1 || loading}
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               className="h-9 w-9 p-0"
@@ -402,7 +401,6 @@ export default function LogPage() {
 
             <Button
               variant="secondary"
-              size="sm"
               disabled={currentPage >= totalPages || loading}
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               className="h-9 w-9 p-0"
